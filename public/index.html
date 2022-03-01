@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Branham Chat</title>
+		<script src="/socket.io/socket.io.js"></script>
+	</head>
+	<body>
+		<ul id="messages"></ul>
+		<form method="dialog" id="send-message">
+			<input type="text" id="message-content" name="Message" required />
+			<input type="submit" value="Send" />
+		</form>
+		<br />
+		<form method="dialog" id="choose-room">
+			<input type="text" id="room-choice" name="Room" placeholder="Room Choice" value="default" required />
+			<input type="submit" value="Switch Room" />
+		</form>
+		<script src="index.js"></script>
+	</body>
+</html>
