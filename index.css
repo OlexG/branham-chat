@@ -1,0 +1,13 @@
+.chat-box {
+    list-style: none;
+    border: 1px solid black;
+    background: grey;
+}
+
+.center {
+    text-align: center;
+}
+
+.chat-message {
+    text-align: left;
+}
