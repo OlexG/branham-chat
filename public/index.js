@@ -8,7 +8,6 @@ const messages = document.getElementById('messages');
 let room = "default";
 
 function add_message(msg, metadata) {
-  console.log(msg, metadata);
   if (metadata.room != room) {
 		return;
 	}

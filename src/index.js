@@ -7,7 +7,7 @@ require('dotenv').config();
 const app = express();
 const server = http.createServer(app);
 const io = new socketio.Server(server);
-const DBManager = require('./db');
+const DBManager = require('../db');
 
 (async () => {
 
