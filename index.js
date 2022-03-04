@@ -9,19 +9,18 @@ const server = http.createServer(app);
 const io = new socketio.Server(server);
 
 io.on('connection', (socket) => {
-	socket.on('chat message', ({ msg, md }) => {
-		console.log('here')
-
+	socket.on('chat message', ({ msg, metadata }) => {
 		const dateNow = new Date();
-		let metadata = {
+		const newMetadata = {
 			timestamp: dateNow,
-			room: md.room
+			room: metadata.room
 		}
-		let package = { msg: msg, metadata: metadata };
-		console.log(package)
+		let package = { msg, metadata: newMetadata };
 		io.emit('chat message', package);
 	});
 });
 app.use(express.static("public"));
 
-server.listen(process.env.PORT ?? 3000);
+server.listen(process.env.PORT ?? 3000, () => {
+  console.log(`Listening on port ${process.env.PORT}`);
+});

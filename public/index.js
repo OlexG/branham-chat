@@ -9,24 +9,20 @@ let room = "default";
 send_form.onsubmit = (e) => {
 	e.preventDefault();
 	if (send_input.value) {
-		let metadata = {
-			timestamp: new Date(),
+		const metadata = {
 			room: room
 		}
 
-		let package = { 
+		const package = { 
 			msg: send_input.value, 
-			metadata: metadata 
+			metadata
 		}
 		socket.emit('chat message', package);
 		send_input.value = "";
 	}
 };
 
-socket.on('chat message', (package) => {
-	console.log(package)
-	let msg = package.msg;
-	let metadata = package.metadata;
+socket.on('chat message', ({msg, metadata}) => {
 	if (metadata.room != room) {
 		return;
 	}
@@ -36,7 +32,7 @@ socket.on('chat message', (package) => {
 	const spanMsg = document.createElement('span');
 
 	elem.appendChild(spanTime);
-	elem.textContent += metadata.time;
+	elem.textContent += new Date(metadata.timestamp).toLocaleTimeString() + " ";
 
 	elem.appendChild(spanMsg);
 	elem.textContent += msg;
