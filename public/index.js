@@ -27,18 +27,22 @@ socket.on('chat message', ({ msg, metadata }) => {
 		return;
 	}
 
+	// <li><span class="msg-time">{metadata.timestamp}</span><span class="msg-msg">{msg}</span></li>
+
 	const elem = document.createElement('li');
 	const spanTime = document.createElement('span');
 	const spanMsg = document.createElement('span');
 
+	spanTime.innerText = new Date(metadata.timestamp).toLocaleTimeString();
+	spanTime.classList.add("msg-time");
 	elem.appendChild(spanTime);
-	elem.textContent += new Date(metadata.timestamp).toLocaleTimeString() + " ";
 
+	spanMsg.innerText = msg;
+	spanMsg.classList.add("msg-msg")
 	elem.appendChild(spanMsg);
-	elem.textContent += msg;
 
 	elem.classList.add('chat-message');
-	// <span class="msg-time">formatTime()</span><span class="msg-msg">{msg}</span>
 	messages.appendChild(elem);
+
 	messages.scrollTop = messages.scrollHeight - messages.clientHeight;
 })

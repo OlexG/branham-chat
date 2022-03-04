@@ -80,6 +80,10 @@ h1 {
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+.chat-message .msg-time {
+	margin-right: 1ex;
+	color: #fffa;
+}
 
 html {
 	height: 100%;
