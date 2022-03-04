@@ -30,16 +30,16 @@ socket.on('chat message', ({ msg, metadata }) => {
 	// <li><span class="msg-time">{metadata.timestamp}</span><span class="msg-msg">{msg}</span></li>
 
 	const elem = document.createElement('li');
-	const spanTime = document.createElement('span');
-	const spanMsg = document.createElement('span');
+	const span_time = document.createElement('span');
+	const span_msg = document.createElement('span');
 
-	spanTime.innerText = new Date(metadata.timestamp).toLocaleTimeString();
-	spanTime.classList.add("msg-time");
-	elem.appendChild(spanTime);
+	span_time.innerText = new Date(metadata.timestamp).toLocaleTimeString();
+	span_time.classList.add("msg-time");
+	elem.appendChild(span_time);
 
-	spanMsg.innerText = msg;
-	spanMsg.classList.add("msg-msg")
-	elem.appendChild(spanMsg);
+	span_msg.innerText = msg;
+	span_msg.classList.add("msg-msg")
+	elem.appendChild(span_msg);
 
 	elem.classList.add('chat-message');
 	messages.appendChild(elem);
