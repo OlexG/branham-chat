@@ -13,8 +13,8 @@ send_form.onsubmit = (e) => {
 			room: room
 		}
 
-		const package = { 
-			msg: send_input.value, 
+		const package = {
+			msg: send_input.value,
 			metadata
 		}
 		socket.emit('chat message', package);
@@ -22,7 +22,7 @@ send_form.onsubmit = (e) => {
 	}
 };
 
-socket.on('chat message', ({msg, metadata}) => {
+socket.on('chat message', ({ msg, metadata }) => {
 	if (metadata.room != room) {
 		return;
 	}

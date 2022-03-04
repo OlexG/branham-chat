@@ -22,5 +22,5 @@ io.on('connection', (socket) => {
 app.use(express.static("public"));
 
 server.listen(process.env.PORT ?? 3000, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
+	console.log(`Listening on port ${process.env.PORT}`);
 });
