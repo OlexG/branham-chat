@@ -16,12 +16,12 @@ await DBManager.initialize();
 
 io.on('connection', (socket) => {
 	socket.on('chat message', ({ msg, metadata }) => {
-		const dateNow = new Date();
-		const newMetadata = {
-			timestamp: dateNow,
+		const date_now = new Date();
+		const new_metadata = {
+			timestamp: date_now,
 			room: metadata.room
 		}
-		let package = { msg, metadata: newMetadata };
+		let package = { msg, metadata: new_metadata };
 		io.emit('chat message', package);
     DBManager.writeMessage(msg, dateNow);
 	});
@@ -35,7 +35,7 @@ io.on('connection', (socket) => {
 app.use(express.static("public"));
 
 server.listen(process.env.PORT ?? 3000, () => {
-  console.log(`Listening on port ${process.env.PORT}`);
+	console.log(`Listening on port ${process.env.PORT}`);
 });
 
 
