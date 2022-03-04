@@ -12,7 +12,8 @@ const DBManager = require('./db');
 (async () => {
 
 
-await DBManager.initialize();
+const db_manager = new DBManager();
+await db_manager.initialize();
 
 io.on('connection', (socket) => {
 	socket.on('chat message', ({ msg, metadata }) => {
@@ -23,12 +24,12 @@ io.on('connection', (socket) => {
 		}
 		let package = { msg, metadata: new_metadata };
 		io.emit('chat message', package);
-    DBManager.writeMessage(msg, dateNow);
+    db_manager.write_message(msg, date_now.toISOString(), metadata.room);
 	});
 
   socket.on('get chat messages', () => {
-    DBManager.getMessages().then(rows => {
-      socket.emit('chat messages', rows);
+    db_manager.get_messages().then(rows => {
+      socket.emit('initial chat messages', rows);
     });
   })
 });

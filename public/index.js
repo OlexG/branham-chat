@@ -1,4 +1,5 @@
 const socket = io();
+socket.emit('get chat messages');
 
 const send_form = document.getElementById('send-message');
 const send_input = document.getElementById('message-content');
@@ -6,24 +7,9 @@ const messages = document.getElementById('messages');
 
 let room = "default";
 
-send_form.onsubmit = (e) => {
-	e.preventDefault();
-	if (send_input.value) {
-		const metadata = {
-			room: room
-		}
-
-		const package = {
-			msg: send_input.value,
-			metadata
-		}
-		socket.emit('chat message', package);
-		send_input.value = "";
-	}
-};
-
-socket.on('chat message', ({ msg, metadata }) => {
-	if (metadata.room != room) {
+function add_message(msg, metadata) {
+  console.log(msg, metadata);
+  if (metadata.room != room) {
 		return;
 	}
 
@@ -45,4 +31,33 @@ socket.on('chat message', ({ msg, metadata }) => {
 	messages.appendChild(elem);
 
 	messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+}
+
+send_form.onsubmit = (e) => {
+	e.preventDefault();
+	if (send_input.value) {
+		const metadata = {
+			room: room
+		}
+
+		const package = {
+			msg: send_input.value,
+			metadata
+		}
+		socket.emit('chat message', package);
+		send_input.value = "";
+	}
+};
+
+socket.on('chat message', ({ msg, metadata }) => {
+  add_message(msg, metadata);
 })
+
+socket.on('initial chat messages', messages => {
+  messages.forEach(({ msg, timestamp, room }) => {
+    add_message(msg, {
+      timestamp,
+      room
+    });
+  });
+});
