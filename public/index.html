@@ -4,67 +4,27 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Branham Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="index.css" media="screen" />
+    <title>Branham Chat</title>
 		<script src="/socket.io/socket.io.js"></script>
 
 		<style>
-			.chat-box {
-				list-style-position: inside;
-				margin-left: -2em;
-				border: 1px solid black;
-				background: grey;
-			}
-			
-			.center {
-				text-align: center;
-			}
-
-			.message-inp {
-				position: fixed;
-				bottom: 0;
-				width: 100%;
-				height: 3vh;
-				padding: 5px;
-				background: blue;
-				border-top-left-radius: 2px;
-				border-top-right-radius: 2px;
-				display: grid;
-				grid-template-columns: 95vw 3.75vw;
-				grid-template-rows: minmax(0, 1fr);
-				column-gap: 0.25vw;
-			}
-
-			.enter-field {
-			}
-
-			.enter-button {
-			}
-
-			li.chat-message {
-				padding-left: 0;
-				margin-left: 0;
-				list-style-type: none;
-			}
-
-			html {
-				height: 100%;
-			}
-
-			body {
-				margin: 0 !important;
-				padding: 0 !important;
-			}
 			
 		</style>
 
 	</head>
 	<body>
-		<h1 class="center">Branham Chat</h1>
-		<ul id="messages" class="chat-box"></ul>
-		<form method="dialog" id="send-message" class="message-inp">
-			<input type="text" id="message-content" name="Message" class="enter-field" required />
-			<input type="submit" value="Send" class="enter-button" />
-		</form>
-		<script src="index.js"></script>
+    <div class="chat-box">
+      <h1 class="center">Branham Chat</h1>
+      <ul id="messages" class="messages-box"></ul>
+      <form method="dialog" id="send-message" class="send-form">
+        <input type="text" id="message-content" name="Message" class="enter-field" required />
+        <input type="submit" value="Send" class="enter-button" />
+      </form>
+      <script src="index.js"></script>
+    </div>
 	</body>
 </html>

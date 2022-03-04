@@ -40,5 +40,5 @@ socket.on('chat message', ({msg, metadata}) => {
 	elem.classList.add('chat-message');
 	// <span class="msg-time">formatTime()</span><span class="msg-msg">{msg}</span>
 	messages.appendChild(elem);
-	window.scrollTo(0, document.body.scrollHeight);
+	messages.scrollTop = messages.scrollHeight - messages.clientHeight;
 })
