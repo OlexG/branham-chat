@@ -13,8 +13,8 @@ send_form.onsubmit = (e) => {
 			room: room
 		}
 
-		const package = { 
-			msg: send_input.value, 
+		const package = {
+			msg: send_input.value,
 			metadata
 		}
 		socket.emit('chat message', package);
@@ -22,23 +22,27 @@ send_form.onsubmit = (e) => {
 	}
 };
 
-socket.on('chat message', ({msg, metadata}) => {
+socket.on('chat message', ({ msg, metadata }) => {
 	if (metadata.room != room) {
 		return;
 	}
 
+	// <li><span class="msg-time">{metadata.timestamp}</span><span class="msg-msg">{msg}</span></li>
+
 	const elem = document.createElement('li');
-	const spanTime = document.createElement('span');
-	const spanMsg = document.createElement('span');
+	const span_time = document.createElement('span');
+	const span_msg = document.createElement('span');
 
-	elem.appendChild(spanTime);
-	elem.textContent += new Date(metadata.timestamp).toLocaleTimeString() + " ";
+	span_time.innerText = new Date(metadata.timestamp).toLocaleTimeString();
+	span_time.classList.add("msg-time");
+	elem.appendChild(span_time);
 
-	elem.appendChild(spanMsg);
-	elem.textContent += msg;
+	span_msg.innerText = msg;
+	span_msg.classList.add("msg-msg")
+	elem.appendChild(span_msg);
 
 	elem.classList.add('chat-message');
-	// <span class="msg-time">formatTime()</span><span class="msg-msg">{msg}</span>
 	messages.appendChild(elem);
+
 	messages.scrollTop = messages.scrollHeight - messages.clientHeight;
 })
