@@ -1,10 +1,11 @@
-const path = require("path");
+import path from "path";
+import sqlite from "better-sqlite3";
 
-class DBManager {
-	static #db_path = path.resolve(__dirname, "../messages.db");
+export default class DBManager {
+	static #db_path = new URL("../../messages.db", import.meta.url).pathname;
 
 	constructor() {
-		this.db = require("better-sqlite3")(this.constructor.#db_path, {});
+		this.db = sqlite(this.constructor.#db_path, {});
 		this.db
 			.prepare(
 				`CREATE TABLE IF NOT EXISTS messages (
@@ -24,5 +25,3 @@ class DBManager {
 		return this.db.prepare(`SELECT * FROM messages`).all();
 	}
 }
-
-module.exports = DBManager;
