@@ -1,95 +1,103 @@
-ul {
-	padding-inline-start: 0px;
-	margin-block-start: 0px;
-	margin-block-end: 0px;
+:root {
+	--background-primary: #fff;
+	--background-secondary: #eee;
+	--foreground-primary: #000;
+	--foreground-secondary: #777;
 }
 
-h1 {
-	margin-block-start: 0px;
-	margin-block-end: 0px;
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background-primary: #444;
+		--background-secondary: #333;
+		--foreground-primary: #fff;
+		--foreground-secondary: #ccc;
+	}
 }
 
-.center {
-	text-align: center;
-	font-family: "Merriweather Sans", sans-serif;
-	color: white;
-	background: #707070;
-	padding: 20px;
+* {
+	color: var(--foreground-primary);
+	box-sizing: border-box;
 }
 
-.chat-box {
-	display: flex;
-	flex-direction: column;
-	justify-content: between;
+html,
+body {
+	box-sizing: border-box;
 	height: 100vh;
-}
-
-.messages-box {
-	height: 100%;
-	border: 1px solid black;
-	background: grey;
-	overflow-y: scroll;
-	padding-top: 10px;
-	padding-bottom: 10px;
-}
-
-.send-form {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: stretch;
-	padding: 15px;
-	height: 50px;
-	background: #707070;
-}
-
-.enter-field {
-	width: 100%;
-	border-radius: 5px;
-	border: 0px;
-}
-
-.enter-button {
-	-webkit-border-radius: 0;
-	-moz-border-radius: 0;
-	border-radius: 0px;
-	font-family: "Merriweather Sans", sans-serif;
-	color: #ffffff;
-	font-size: 22px;
-	background: #363636;
-	padding: 10px 20px 10px 20px;
-	text-decoration: none;
-	flex-shrink: 0;
-	width: 200px;
-}
-
-.enter-button:hover {
-	background: #ababab;
-	text-decoration: none;
-}
-
-.chat-message {
-	padding-left: 0;
-	margin-left: 0;
-	list-style-type: none;
-	color: white;
-	font-size: 20px;
-	font-family: "Merriweather Sans", sans-serif;
-	padding-left: 10px;
-	padding-right: 10px;
-	padding-top: 5px;
-	padding-bottom: 5px;
-}
-.chat-message .msg-time {
-	margin-right: 1ex;
-	color: #fffa;
-}
-
-html {
-	height: 100%;
+	width: 100ww;
+	margin: 0;
+	background-color: var(--background-primary);
+	overflow-y: hidden;
 }
 
 body {
-	margin: 0 !important;
-	padding: 0 !important;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	grid-template-columns: 1fr;
+}
+
+body > * {
+	padding: 1rem;
+}
+
+header,
+footer {
+	display: flex;
+	flex-direction: row;
+	justify-content: stretch;
+	align-items: center;
+	gap: 1ex;
+}
+
+header #title {
+	flex: 1;
+	margin: 0;
+	text-align: center;
+}
+footer > form {
+	display: contents;
+}
+footer #message-content {
+	flex: 1;
+}
+
+header,
+footer {
+	background-color: var(--background-secondary);
+}
+main {
+	display: contents;
+}
+
+#messages {
+	list-style: none;
+	margin: 0;
+	padding-inline-start: 0;
+	overflow-y: scroll;
+	max-height: 100%;
+	padding: 1rem;
+}
+#messages > li {
+	display: flex;
+	flex-direction: row;
+	gap: 1ex;
+}
+#messages > li > .msg-time {
+	color: var(--foreground-secondary);
+	width: 8ex;
+}
+
+footer #message-send-button,
+footer #message-content {
+	color: var(--foreground-primary);
+	background: var(--background-primary);
+	border: 2px solid var(--background-primary);
+	padding: 2px;
+	margin: 0;
+	border-radius: 2px;
+}
+
+select {
+	background-color: var(--background-primary);
+	border: 2px solid var(--background-primary);
+	border-radius: 2px;
 }

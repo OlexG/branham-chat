@@ -14,14 +14,17 @@
 		<style></style>
 	</head>
 	<body>
-		<div class="chat-box">
-			<h1 class="center">Branham Chat</h1>
-			<ul id="messages" class="messages-box"></ul>
-			<form method="dialog" id="send-message" class="send-form">
+		<header>
+			<select id="room-choice"></select>
+			<h1 id="title">Branham Chat</h1>
+		</header>
+		<ul id="messages" class="messages-box"></ul>
+		<footer>
+			<form method="dialog" id="send-message">
 				<input type="text" id="message-content" name="Message" class="enter-field" required />
-				<input type="submit" value="Send" class="enter-button" />
+				<input type="submit" value="Send" id="message-send-button" />
 			</form>
-			<script src="index.js"></script>
-		</div>
+		</footer>
+		<script src="index.js"></script>
 	</body>
 </html>
