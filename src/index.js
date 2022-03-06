@@ -1,9 +1,10 @@
-const socketio = require("socket.io");
-const express = require("express");
-const http = require("http");
-const DBManager = require("./db");
+import * as socketio from "socket.io";
+import express from "express";
+import * as http from "http";
+import DBManager from "./db.js";
 
-require("dotenv").config();
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
@@ -17,8 +18,8 @@ io.on("connection", (socket) => {
 			timestamp: date_now,
 			room: metadata.room,
 		};
-		let package = { msg, metadata: new_metadata };
-		io.emit("chat message", package);
+		let data = { msg, metadata: new_metadata };
+		io.emit("chat message", data);
 		db_manager.push(msg, date_now, metadata.room);
 	});
 
