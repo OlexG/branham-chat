@@ -1,4 +1,3 @@
-import path from "path";
 import sqlite from "better-sqlite3";
 
 export default class DBManager {
