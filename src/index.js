@@ -25,6 +25,10 @@ io.on("connection", (socket) => {
 	socket.on("get messages", (room_id, callback) => {
 		callback(db_manager.get_messages(room_id));
 	});
+
+	socket.on("get room id", (name, callback) => {
+		callback(db_manager.room_id(name));
+	});
 });
 
 app.use(express.static("client/build"));
