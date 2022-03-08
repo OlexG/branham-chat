@@ -5,22 +5,55 @@ export default class DBManager {
 
 	constructor() {
 		this.db = sqlite(this.constructor.#db_path, {});
+		this.db.pragma("foreign_keys = true");
+		this.db
+			.prepare(
+				`CREATE TABLE IF NOT EXISTS rooms (
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					name TEXT UNIQUE,
+				)`
+			)
+			.run();
 		this.db
 			.prepare(
 				`CREATE TABLE IF NOT EXISTS messages (
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
 					msg TEXT,
-					timestamp TEXT,
-					room TEXT
+					timestamp INTEGER,
+					room INTEGER
+					FOREIGN KEY(room) REFERENCES rooms(id) ON DELETE CASCADE
 				)`
 			)
 			.run();
+		this.add_room("default");
 	}
 
-	push(msg, timestamp, room) {
-		this.db.prepare(`INSERT INTO messages (msg, timestamp, room) VALUES (?, ?, ?)`).run(msg, timestamp.toISOString(), room);
+	get_rooms() {
+		return this.db.prepare(`SELECT * FROM rooms`).all();
 	}
-	get() {
-		return this.db.prepare(`SELECT * FROM messages`).all();
+	room_name(id) {
+		return this.db.prepare(`SELECT name FROM rooms WHERE id = ?`).get(id).name;
+	}
+	add_room(name) {
+		try {
+			this.db.prepare(`INSERT INTO rooms (name) VALUES (?)`).run(name);
+			return true;
+		} catch (e) {
+			if (e instanceof sqlite.SqliteError && e.code.startsWith("SQLITE_CONSTRAINT")) {
+				return false;
+			} else {
+				throw e;
+			}
+		}
+	}
+
+	push_message(room, msg, timestamp) {
+		this.db.prepare(`INSERT INTO messages (msg, timestamp, room) VALUES (?, ?, ?)`).run(msg, timestamp.valueOf(), room);
+	}
+	get_messages(room) {
+		return this.db
+			.prepare(`SELECT msg, timestamp FROM messages WHERE room = ?`)
+			.all(room)
+			.map((row) => ({ timestamp: new Date(row.timestamp), ...row }));
 	}
 }

@@ -12,19 +12,18 @@ const io = new socketio.Server(server);
 const db_manager = new DBManager();
 
 io.on("connection", (socket) => {
-	socket.on("chat message", ({ msg, metadata }) => {
-		const date_now = new Date();
-		const new_metadata = {
-			timestamp: date_now,
-			room: metadata.room,
-		};
-		let data = { msg, metadata: new_metadata };
-		io.emit("chat message", data);
-		db_manager.push(msg, date_now, metadata.room);
+	socket.on("rooms", (callback) => {
+		callback(db_manager.get_rooms());
 	});
 
-	socket.on("get chat messages", () => {
-		socket.emit("initial chat messages", db_manager.get());
+	socket.on("send message", (room_id, msg) => {
+		const date_now = new Date();
+		io.emit(`new message ${room_id}`, msg, date_now);
+		db_manager.push_message(room_id, msg, date_now);
+	});
+
+	socket.on("get messages", (room_id, callback) => {
+		callback(db_manager.get_messages(room_id));
 	});
 });
 app.use(express.static("public"));

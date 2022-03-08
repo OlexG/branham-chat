@@ -1,62 +1,87 @@
 const socket = io();
-socket.emit("get chat messages");
+
+function empty_element(elem) {
+	while (elem.lastChild) {
+		elem.removeChild(elem.lastChild);
+	}
+}
 
 const send_form = document.getElementById("send-message");
 const send_input = document.getElementById("message-content");
 const messages = document.getElementById("messages");
 
-let room = "default";
+class App {
+	/**
+	 * @type {?number}
+	 */
+	#room = null;
 
-function add_message(msg, metadata) {
-	if (metadata.room != room) {
-		return;
+	constructor(starting) {
+		this.change_room(starting);
 	}
 
-	// <li><span class="msg-time">{metadata.timestamp}</span><span class="msg-msg">{msg}</span></li>
+	get #message_event_name() {
+		return `new message ${this.#room}`;
+	}
 
-	const elem = document.createElement("li");
-	const span_time = document.createElement("span");
-	const span_msg = document.createElement("span");
+	#leave_room() {
+		empty_element(messages);
+		socket.off(this.#message_event_name);
+	}
 
-	span_time.innerText = new Date(metadata.timestamp).toLocaleTimeString();
-	span_time.classList.add("msg-time");
-	elem.appendChild(span_time);
+	#add_message(msg, timestamp) {
+		// <li><span class="msg-time">{metadata.timestamp}</span><span class="msg-msg">{msg}</span></li>
+		const elem = document.createElement("li");
+		const span_time = document.createElement("span");
+		const span_msg = document.createElement("span");
 
-	span_msg.innerText = msg;
-	span_msg.classList.add("msg-msg");
-	elem.appendChild(span_msg);
+		span_time.innerText = new Date(timestamp).toLocaleTimeString();
+		span_time.classList.add("msg-time");
+		elem.appendChild(span_time);
 
-	elem.classList.add("chat-message");
-	messages.appendChild(elem);
+		span_msg.innerText = msg;
+		span_msg.classList.add("msg-msg");
+		elem.appendChild(span_msg);
 
-	messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+		elem.classList.add("chat-message");
+		messages.appendChild(elem);
+
+		messages.scrollTop = messages.scrollHeight - messages.clientHeight;
+	}
+
+	#fetch_initial_messages() {
+		socket.emit("get messages", this.#room, (messages) => {
+			for (const { msg, timestamp } of messages) {
+				this.#add_message(msg, timestamp);
+			}
+		});
+	}
+
+	change_room(new_room) {
+		if (!new_room) {
+			return false;
+		}
+		if (this.#room) {
+			this.#leave_room();
+		}
+		this.#room = new_room;
+		this.#fetch_initial_messages();
+		socket.on(this.#message_event_name, (msg, timestamp) => {
+			this.#add_message(msg, timestamp);
+		});
+	}
+
+	send_message(content) {
+		socket.emit("send message", this.#room, content);
+	}
 }
+
+const app = new App("default");
 
 send_form.onsubmit = (e) => {
 	e.preventDefault();
 	if (send_input.value) {
-		const metadata = {
-			room: room,
-		};
-
-		const package = {
-			msg: send_input.value,
-			metadata,
-		};
-		socket.emit("chat message", package);
+		app.send_message(send_input.value);
 		send_input.value = "";
 	}
 };
-
-socket.on("chat message", ({ msg, metadata }) => {
-	add_message(msg, metadata);
-});
-
-socket.on("initial chat messages", (messages) => {
-	messages.forEach(({ msg, timestamp, room }) => {
-		add_message(msg, {
-			timestamp,
-			room,
-		});
-	});
-});
