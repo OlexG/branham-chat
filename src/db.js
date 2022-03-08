@@ -10,7 +10,7 @@ export default class DBManager {
 			.prepare(
 				`CREATE TABLE IF NOT EXISTS rooms (
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
-					name TEXT UNIQUE,
+					name TEXT UNIQUE
 				)`
 			)
 			.run();
@@ -20,7 +20,7 @@ export default class DBManager {
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
 					msg TEXT,
 					timestamp INTEGER,
-					room INTEGER
+					room INTEGER,
 					FOREIGN KEY(room) REFERENCES rooms(id) ON DELETE CASCADE
 				)`
 			)
