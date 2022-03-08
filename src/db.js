@@ -32,7 +32,10 @@ export default class DBManager {
 		return this.db.prepare(`SELECT * FROM rooms`).all();
 	}
 	room_name(id) {
-		return this.db.prepare(`SELECT name FROM rooms WHERE id = ?`).get(id).name;
+		return this.db.prepare(`SELECT name FROM rooms WHERE id = ?`).get(id)?.name;
+	}
+	room_id(name) {
+		return this.db.prepare(`SELECT id FROM rooms WHERE name = ?`).get(name)?.name;
 	}
 	add_room(name) {
 		try {
