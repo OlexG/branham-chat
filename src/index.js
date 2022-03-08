@@ -26,7 +26,8 @@ io.on("connection", (socket) => {
 		callback(db_manager.get_messages(room_id));
 	});
 });
-app.use(express.static("public"));
+
+app.use(express.static("client/build"));
 
 server.listen(process.env.PORT ?? 3000, () => {
 	console.log(`Listening on port ${process.env.PORT}`);
