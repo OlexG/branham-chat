@@ -17,7 +17,7 @@ app.use(express.json());
 const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
 
 app.get("/app", (_req, res) => {
-	res.sendFile("client/build/index.html");
+	res.sendFile(new URL("../client/build/index.html", import.meta.url).pathname);
 });
 app.use("/static", express.static("client/build/static"));
 
