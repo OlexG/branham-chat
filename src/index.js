@@ -1,6 +1,5 @@
 import express from "express";
 import enable_ws from "express-ws";
-import * as http from "http";
 import DBManager from "./db.js";
 
 import * as dotenv from "dotenv";
