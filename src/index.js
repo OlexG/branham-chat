@@ -1,5 +1,6 @@
 import express from "express";
 import enable_ws from "express-ws";
+import * as path from "path";
 import DBManager from "./db.js";
 
 import * as dotenv from "dotenv";
@@ -20,7 +21,7 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/app", (_req, res) => {
-	res.sendFile(new URL("../client/build/index.html", import.meta.url).pathname);
+	res.sendFile(path.resolve("client/build/index.html"));
 });
 app.use("/static", express.static("client/build/static"));
 
