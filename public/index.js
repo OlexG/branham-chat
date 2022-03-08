@@ -12,13 +12,9 @@ function add_message(msg, metadata) {
 		return;
 	}
 
-	// <li><span class="msg-time">{metadata.timestamp}</span><span class="msg-msg">{msg}</span></li>
-
 	const elem = document.createElement("li");
 	const span_time = document.createElement("span");
 	const span_msg = document.createElement("span");
-
-	//const raw = marked.parse(msg.msg);
 
 	span_time.innerHTML = new Date(metadata.timestamp).toLocaleDateString("en-US");
 	span_time.classList.add("msg-time");
