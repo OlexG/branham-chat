@@ -1,8 +1,5 @@
 import "./App.css";
-import io from "socket.io-client";
 import { useState, useEffect } from "react";
-const socket = io("http://localhost:3000");
-socket.emit("get chat messages");
 
 function App() {
 	const [messages, setMessages] = useState([]);
@@ -11,15 +8,14 @@ function App() {
 		function addMessage(message) {
 			setMessages((messages) => [...messages, message]);
 		}
-		socket.on("chat message", (msgObj) => {
-			addMessage(msgObj);
-		});
-
-		socket.on("initial chat messages", (messages) => {
-			messages.forEach(({ msg, timestamp, room }) => {
-				addMessage({ msg, metadata: { timestamp, room } });
-			});
-		});
+		// listen for chat messages using websockets
+    const ws = new WebSocket("/rooms/general/messages.ws");
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "new_message") {
+        addMessage(message);
+      }
+    }
 	}, []);
 
   function sendMessage(e){
@@ -27,7 +23,6 @@ function App() {
     e.preventDefault();
     if (formValue) {
       console.log(formValue);
-      socket.emit("chat message", formValue, 'general');
     }
   }
 
