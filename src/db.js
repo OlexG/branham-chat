@@ -50,13 +50,13 @@ export default class DBManager {
 		}
 	}
 
-	push_message(room, msg, timestamp) {
-		this.db.prepare(`INSERT INTO messages (msg, timestamp, room) VALUES (?, ?, ?)`).run(msg, timestamp.valueOf(), room);
+	push_message(room_id, msg, timestamp) {
+		this.db.prepare(`INSERT INTO messages (msg, timestamp, room) VALUES (?, ?, ?)`).run(msg, timestamp.valueOf(), room_id);
 	}
-	get_messages(room) {
+	get_messages(room_id) {
 		return this.db
 			.prepare(`SELECT msg, timestamp FROM messages WHERE room = ?`)
-			.all(room)
+			.all(room_id)
 			.map((row) => ({ timestamp: new Date(row.timestamp), ...row }));
 	}
 }
