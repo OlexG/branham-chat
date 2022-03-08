@@ -18,11 +18,13 @@ function add_message(msg, metadata) {
 	const span_time = document.createElement("span");
 	const span_msg = document.createElement("span");
 
-	span_time.innerText = new Date(metadata.timestamp).toLocaleTimeString();
+	//const raw = marked.parse(msg.msg);
+
+	span_time.innerHTML = new Date(metadata.timestamp).toLocaleDateString("en-US");
 	span_time.classList.add("msg-time");
 	elem.appendChild(span_time);
 
-	span_msg.innerText = msg;
+	span_msg.innerHTML = msg;
 	span_msg.classList.add("msg-msg");
 	elem.appendChild(span_msg);
 
@@ -36,7 +38,8 @@ send_form.onsubmit = (e) => {
 	e.preventDefault();
 	if (send_input.value) {
 		const metadata = {
-			room: room,
+			timestamp: new Date(),
+			room: room
 		};
 
 		const package = {
@@ -60,3 +63,8 @@ socket.on("initial chat messages", (messages) => {
 		});
 	});
 });
+
+socket.on("bad message", (msg) => {
+	send_input.classList.add('bad')
+	alert("You cannot send: '" + msg + "'");
+})
