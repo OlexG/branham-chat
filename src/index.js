@@ -15,6 +15,10 @@ app.use(express.json());
 // value = array of websocket clients
 const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
 
+app.get("/", (_req, res) => {
+	res.redirect(301, "/app");
+});
+
 app.get("/app", (_req, res) => {
 	res.sendFile(new URL("../client/build/index.html", import.meta.url).pathname);
 });
