@@ -1,5 +1,7 @@
 import "./App.css";
 import { useState, useEffect } from "react";
+import { SOCKET_URL } from "./constants";
+import api from "./api";
 
 function App() {
 	const [messages, setMessages] = useState([]);
@@ -8,14 +10,19 @@ function App() {
 		function addMessage(message) {
 			setMessages((messages) => [...messages, message]);
 		}
+    async function fetchMessages() {
+      const { data } = await api.sendGetMessagesRequest("general");
+      setMessages(data);
+    }
 		// listen for chat messages using websockets
-    const ws = new WebSocket("/rooms/general/messages.ws");
+    const ws = new WebSocket(`${SOCKET_URL}/rooms/test/messages.ws`);
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "new_message") {
         addMessage(message);
       }
     }
+    fetchMessages();
 	}, []);
 
   function sendMessage(e){

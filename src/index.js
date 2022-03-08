@@ -2,7 +2,7 @@ import express from "express";
 import enable_ws from "express-ws";
 import * as http from "http";
 import DBManager from "./db.js";
-
+import path from "path";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -16,9 +16,16 @@ app.use(express.json());
 // value = array of websocket clients
 const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
 
-app.get("/app", (_req, res) => {
-	res.sendFile("client/build/index.html");
+app.get("/", (_req, res) => {
+	res.redirect(301, "/app");
 });
+
+console.log(import.meta.url)
+
+app.get("/app", (_req, res) => {
+	res.sendFile(path.resolve("client/build/index.html"));
+});
+
 app.use("/static", express.static("client/build/static"));
 
 app.get("/rooms/:room/messages", (req, res) => {
