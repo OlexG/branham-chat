@@ -1,7 +1,7 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import { SOCKET_URL } from "./constants";
-import api from "./api";
+import api from "./api/requests";
 
 function App() {
 	const [messages, setMessages] = useState([]);
@@ -15,7 +15,7 @@ function App() {
       setMessages(data);
     }
 		// listen for chat messages using websockets
-    const ws = new WebSocket(`${SOCKET_URL}/rooms/test/messages.ws`);
+    const ws = new WebSocket(`${SOCKET_URL}/rooms/general/messages.ws`);
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data);
       if (message.type === "new_message") {
@@ -26,10 +26,10 @@ function App() {
 	}, []);
 
   function sendMessage(e){
-    console.log(e);
     e.preventDefault();
     if (formValue) {
-      console.log(formValue);
+      api.sendPostMessageRequest('general', formValue);
+      setFormValue("");
     }
   }
 
@@ -43,9 +43,9 @@ function App() {
 				<h1 id="title">Branham Chat</h1>
 			</header>
 			<ul id="messages" className="messages-box">
-				{messages.map(({ msg, metadata }) => (
-					<li>
-						<span className="msg-time">{metadata.timestamp}</span>
+				{messages.map(({ msg, timestamp }) => (
+					<li key={msg + timestamp}>
+						<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
 						<span className="msg-msg">{msg}</span>
 					</li>
 				))}

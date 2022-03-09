@@ -5,12 +5,12 @@ const sendGetMessagesRequest = (room) => {
   return axios.get(`${HTTP_URL}/rooms/${room}/messages`);
 }
 
-const sendPostPessageRequest = (room, msg) => {
+const sendPostMessageRequest = (room, msg) => {
   return axios.post(`${HTTP_URL}/rooms/${room}/messages`, { content: msg });
 }
 
 const api = {
   sendGetMessagesRequest,
-  sendPostPessageRequest
+  sendPostMessageRequest
 }
 export default api;

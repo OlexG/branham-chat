@@ -40,16 +40,18 @@ main {
 	overflow-y: scroll;
 	max-height: 100%;
 	padding: 1rem;
+  width: 100%;
 }
 #messages > li {
 	display: flex;
 	flex-direction: row;
 	gap: 1ex;
   font-family: 'Merriweather Sans', sans-serif;
+  padding: 0.2rem;
 }
 #messages > li > .msg-time {
 	color: var(--foreground-secondary);
-	width: 8ex;
+  width: 250px;
 }
 
 footer #message-send-button {
