@@ -7,7 +7,8 @@
 	"author": "",
 	"scripts": {
 		"start": "node src/index.js",
-		"dev": "npx nodemon src/index.js & cd client && npx nodemon --watch src --exec yarn run build"
+		"server": "npx nodemon --quiet src/index.js",
+    "dev": "yarn run --silent server && cd client && yarn start"
 	},
 	"nodemonConfig": {
 		"ext": "js,html,css"

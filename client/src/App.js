@@ -14,7 +14,7 @@ function App() {
 			setMessages(data);
 		}
 		// listen for chat messages using websockets
-		const ws = new WebSocket(`ws://${window.location.host}/rooms/general/messages.ws`);
+		const ws = new WebSocket(`ws://${process.env.NODE_ENV === 'development' ? 'localhost:3001' : window.location.host}/rooms/general/messages.ws`);
 		ws.onmessage = (event) => {
 			const message = JSON.parse(event.data);
 			if (message.type === "new_message") {
@@ -42,7 +42,7 @@ function App() {
 				<h1 id="title">Branham Chat</h1>
 			</header>
 			<ul id="messages" className="messages-box">
-				{messages.map(({ msg, timestamp }) => (
+				{messages && messages.map(({ msg, timestamp }) => (
 					<li key={msg + timestamp}>
 						<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
 						<span className="msg-msg">{msg}</span>

@@ -1,11 +1,11 @@
 import axios from "axios";
 
 const sendGetMessagesRequest = (room) => {
-	return axios.get(`http://${window.location.host}/rooms/${room}/messages`);
+	return axios.get(`/rooms/${room}/messages`);
 };
 
 const sendPostMessageRequest = (room, msg) => {
-	return axios.post(`http://${window.location.host}/rooms/${room}/messages`, { content: msg });
+	return axios.post(`/rooms/${room}/messages`, { content: msg });
 };
 
 const api = {
