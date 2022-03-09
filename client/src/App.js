@@ -5,37 +5,37 @@ import api from "./api/requests";
 
 function App() {
 	const [messages, setMessages] = useState([]);
-  const [formValue, setFormValue] = useState("");
+	const [formValue, setFormValue] = useState("");
 	useEffect(() => {
 		function addMessage(message) {
 			setMessages((messages) => [...messages, message]);
 		}
-    async function fetchMessages() {
-      const { data } = await api.sendGetMessagesRequest("general");
-      setMessages(data);
-    }
+		async function fetchMessages() {
+			const { data } = await api.sendGetMessagesRequest("general");
+			setMessages(data);
+		}
 		// listen for chat messages using websockets
-    const ws = new WebSocket(`${SOCKET_URL}/rooms/general/messages.ws`);
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type === "new_message") {
-        addMessage(message);
-      }
-    }
-    fetchMessages();
+		const ws = new WebSocket(`${SOCKET_URL}/rooms/general/messages.ws`);
+		ws.onmessage = (event) => {
+			const message = JSON.parse(event.data);
+			if (message.type === "new_message") {
+				addMessage(message);
+			}
+		};
+		fetchMessages();
 	}, []);
 
-  function sendMessage(e){
-    e.preventDefault();
-    if (formValue) {
-      api.sendPostMessageRequest('general', formValue);
-      setFormValue("");
-    }
-  }
+	function sendMessage(e) {
+		e.preventDefault();
+		if (formValue) {
+			api.sendPostMessageRequest("general", formValue);
+			setFormValue("");
+		}
+	}
 
-  function handleFormValueChange(e){
-    setFormValue(e.target.value);
-  }
+	function handleFormValueChange(e) {
+		setFormValue(e.target.value);
+	}
 	return (
 		<>
 			<header>
