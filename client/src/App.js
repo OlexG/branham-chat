@@ -1,8 +1,8 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import { SOCKET_URL } from "./constants";
 import api from "./api/requests";
 
+console.log(window.location)
 function App() {
 	const [messages, setMessages] = useState([]);
 	const [formValue, setFormValue] = useState("");
@@ -15,7 +15,7 @@ function App() {
 			setMessages(data);
 		}
 		// listen for chat messages using websockets
-		const ws = new WebSocket(`${SOCKET_URL}/rooms/general/messages.ws`);
+		const ws = new WebSocket(`ws://${window.location.host}/rooms/general/messages.ws`);
 		ws.onmessage = (event) => {
 			const message = JSON.parse(event.data);
 			if (message.type === "new_message") {
