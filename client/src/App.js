@@ -2,7 +2,6 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import api from "./api/requests";
 
-console.log(window.location)
 function App() {
 	const [messages, setMessages] = useState([]);
 	const [formValue, setFormValue] = useState("");

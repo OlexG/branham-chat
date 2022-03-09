@@ -23,8 +23,6 @@ app.get("/", (_req, res) => {
 	res.redirect(301, "/app");
 });
 
-console.log(import.meta.url)
-
 app.get("/app", (_req, res) => {
 	res.sendFile(path.resolve("client/build/index.html"));
 });
