@@ -4,7 +4,6 @@ import * as http from "http";
 import DBManager from "./db.js";
 import path from "path";
 import * as dotenv from "dotenv";
-import cors from 'cors';
 
 dotenv.config();
 
@@ -12,7 +11,6 @@ const app = express();
 enable_ws(app);
 const db_manager = new DBManager();
 
-app.use(cors());
 app.use(express.json());
 
 // key = room name
