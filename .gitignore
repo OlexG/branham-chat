@@ -1,2 +1,7 @@
 node_modules
 messages.db
+client/build
+client/dist
+.parcel_cache
+yarn-error.log
+package-lock.json
