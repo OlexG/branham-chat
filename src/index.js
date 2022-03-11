@@ -17,8 +17,7 @@ app.use(express.json());
 // value = array of websocket clients
 const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
 
-app.use(express.static('client/build'))
-
+app.use(express.static("client/build"));
 
 app.get("/rooms/:room/messages", (req, res) => {
 	const messages = db_manager.get_messages(req.params.room);

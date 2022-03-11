@@ -42,12 +42,13 @@ function App() {
 				<h1 id="title">Branham Chat</h1>
 			</header>
 			<ul id="messages" className="messages-box">
-				{messages && messages.map(({ msg, timestamp }) => (
-					<li key={msg + timestamp}>
-						<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
-						<span className="msg-msg">{msg}</span>
-					</li>
-				))}
+				{messages &&
+					messages.map(({ msg, timestamp }) => (
+						<li key={msg + timestamp}>
+							<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
+							<span className="msg-msg">{msg}</span>
+						</li>
+					))}
 			</ul>
 			<footer>
 				<form method="dialog" id="send-message" onSubmit={sendMessage}>
