@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import api from "./api/requests";
 console.log("here");
+
 function App() {
 	const [messages, setMessages] = useState([]);
 	const [formValue, setFormValue] = useState("");
@@ -16,7 +17,7 @@ function App() {
 			setMessages(data);
 		}
 		// listen for chat messages using websockets
-		const ws = new WebSocket(`ws://${process.env.NODE_ENV === 'development' ? 'localhost:3001' : window.location.host}/rooms/general/messages.ws`);
+		const ws = new WebSocket(`ws://${window.location.host}/rooms/general/messages.ws`);
 		ws.onmessage = (event) => {
 			const message = JSON.parse(event.data);
 			if (message.type === "new_message") {
