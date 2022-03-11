@@ -7,9 +7,9 @@
 	"scripts": {
 		"start-server": "node src/index.js",
 		"dev-server": "nodemon src/index.js",
-		"dev-client": "parcel watch --dist-dir ./client/build/dev ./client/src/index.html",
+		"dev-client": "parcel watch --dist-dir ./client/build ./client/src/index.html",
 		"dev": "yarn npm-run-all --parallel dev-server dev-client",
-		"build-client": "parcel build client/src/index.html --dist-dir ./client/build/production ./client/src/index.html"
+		"build-client": "parcel build client/src/index.html --dist-dir ./client/build ./client/src/index.html"
 	},
 	"nodemonConfig": {
 		"ext": "js,html,css"
