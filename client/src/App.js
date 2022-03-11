@@ -1,13 +1,13 @@
 import "./App.css";
-import { useState, useEffect } from "react";
 import * as api from "./api/requests";
+import { useEffect, useState } from "react";
 
 function App() {
 	const [messages, setMessages] = useState([]);
 	const [formValue, setFormValue] = useState("");
 	useEffect(() => {
 		function addMessage(message) {
-			setMessages((messages) => [...messages, message]);
+			setMessages((old_messages) => [...old_messages, message]);
 		}
 		async function fetchMessages() {
 			const { data } = await api.sendGetMessagesRequest("general");
@@ -45,7 +45,7 @@ function App() {
 				{messages &&
 					messages.map(({ msg, timestamp }) => (
 						<li key={msg + timestamp}>
-							<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
+							<span className="msg-time">{new Date(parseInt(timestamp, 10)).toISOString()}</span>
 							<span className="msg-msg">{msg}</span>
 						</li>
 					))}

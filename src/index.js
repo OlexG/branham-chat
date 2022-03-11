@@ -1,9 +1,9 @@
-import express from "express";
-import enable_ws from "express-ws";
+import * as dotenv from "dotenv";
 import * as http from "http";
 import DBManager from "./db.js";
+import enable_ws from "express-ws";
+import express from "express";
 import path from "path";
-import * as dotenv from "dotenv";
 
 dotenv.config();
 
@@ -64,8 +64,8 @@ app.ws("/rooms/:room/messages.ws", (ws, req) => {
 	});
 });
 
-const port = process.env.PORT ? process.env.PORT : 3000;
+const port = process.env.PORT ?? 3000;
 
 app.listen(port, () => {
-	console.info(`Listening on port ${port}`);
+	process.stderr.write(`Listening on port ${port}\n`);
 });

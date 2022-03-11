@@ -1,5 +1,5 @@
-import sqlite from "better-sqlite3";
 import path from "path";
+import sqlite from "better-sqlite3";
 
 export default class DBManager {
 	static #db_path = new URL(path.resolve(path.resolve(), "../messages.db"), import.meta.url).pathname;
@@ -61,9 +61,9 @@ export default class DBManager {
 
 		const inserted_id = this.db.prepare(`INSERT INTO messages (msg, timestamp, room) VALUES (?, ?, ?)`).run(msg, timestamp, room_id).lastInsertRowid;
 		return {
+			id: inserted_id,
 			msg,
 			timestamp,
-			id: inserted_id,
 		};
 	}
 	get_messages(room_id) {
