@@ -19,15 +19,8 @@ app.use(express.json());
 // value = array of websocket clients
 const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
 
-app.get("/", (_req, res) => {
-	res.redirect(301, "/app");
-});
+app.use(express.static('client/build'))
 
-app.get("/app", (_req, res) => {
-	res.sendFile(path.resolve("client/build/index.html"));
-});
-
-app.use("/static", express.static("client/build/static"));
 
 app.get("/rooms/:room/messages", (req, res) => {
 	const messages = db_manager.get_messages(req.params.room);
@@ -75,6 +68,7 @@ app.ws("/rooms/:room/messages.ws", (ws, req) => {
 });
 
 const port = process.env.PORT ? process.env.PORT : 3000;
+
 app.listen(port, () => {
 	console.info(`Listening on port ${port}`);
 });

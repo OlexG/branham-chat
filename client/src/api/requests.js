@@ -1,11 +1,11 @@
 import axios from "axios";
-
+const proxy = process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : '';
 const sendGetMessagesRequest = (room) => {
-	return axios.get(`/rooms/${room}/messages`);
+	return axios.get(`${proxy}/rooms/${room}/messages`);
 };
 
 const sendPostMessageRequest = (room, msg) => {
-	return axios.post(`/rooms/${room}/messages`, { content: msg });
+	return axios.post(`${proxy}/rooms/${room}/messages`, { content: msg });
 };
 
 const api = {

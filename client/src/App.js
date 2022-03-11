@@ -1,16 +1,18 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import api from "./api/requests";
-
+console.log("here");
 function App() {
 	const [messages, setMessages] = useState([]);
 	const [formValue, setFormValue] = useState("");
+  console.log(messages);
 	useEffect(() => {
 		function addMessage(message) {
 			setMessages((messages) => [...messages, message]);
 		}
 		async function fetchMessages() {
 			const { data } = await api.sendGetMessagesRequest("general");
+      console.log(data);
 			setMessages(data);
 		}
 		// listen for chat messages using websockets
