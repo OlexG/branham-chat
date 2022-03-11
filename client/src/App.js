@@ -1,6 +1,6 @@
 import "./App.css";
 import { useState, useEffect } from "react";
-import api from "./api/requests";
+import * as api from "./api/requests";
 
 function App() {
 	const [messages, setMessages] = useState([]);
