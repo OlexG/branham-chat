@@ -1,29 +1,26 @@
 import express from "express";
 import enable_ws from "express-ws";
-import * as path from "path";
+import * as http from "http";
 import DBManager from "./db.js";
-
+import path from "path";
 import * as dotenv from "dotenv";
+import cors from 'cors';
+
 dotenv.config();
 
 const app = express();
 enable_ws(app);
 const db_manager = new DBManager();
 
+app.use(cors());
 app.use(express.json());
 
 // key = room name
 // value = array of websocket clients
 const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
 
-app.get("/", (_req, res) => {
-	res.redirect(301, "/app");
-});
+app.use(express.static('client/build'))
 
-app.get("/app", (_req, res) => {
-	res.sendFile(path.resolve("client/build/index.html"));
-});
-app.use("/static", express.static("client/build/static"));
 
 app.get("/rooms/:room/messages", (req, res) => {
 	const messages = db_manager.get_messages(req.params.room);
@@ -70,7 +67,8 @@ app.ws("/rooms/:room/messages.ws", (ws, req) => {
 	});
 });
 
-const port = process.env.PORT ?? 3000;
+const port = process.env.PORT ? process.env.PORT : 3000;
+
 app.listen(port, () => {
 	console.info(`Listening on port ${port}`);
 });

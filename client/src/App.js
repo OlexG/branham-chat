@@ -1,39 +1,42 @@
 import "./App.css";
-import io from "socket.io-client";
 import { useState, useEffect } from "react";
-const socket = io("http://localhost:3000");
-socket.emit("get chat messages");
-
+import api from "./api/requests";
+console.log("here");
 function App() {
 	const [messages, setMessages] = useState([]);
-  const [formValue, setFormValue] = useState("");
+	const [formValue, setFormValue] = useState("");
+  console.log(messages);
 	useEffect(() => {
 		function addMessage(message) {
 			setMessages((messages) => [...messages, message]);
 		}
-		socket.on("chat message", (msgObj) => {
-			addMessage(msgObj);
-		});
-
-		socket.on("initial chat messages", (messages) => {
-			messages.forEach(({ msg, timestamp, room }) => {
-				addMessage({ msg, metadata: { timestamp, room } });
-			});
-		});
+		async function fetchMessages() {
+			const { data } = await api.sendGetMessagesRequest("general");
+      console.log(data);
+			setMessages(data);
+		}
+		// listen for chat messages using websockets
+		const ws = new WebSocket(`ws://${process.env.NODE_ENV === 'development' ? 'localhost:3001' : window.location.host}/rooms/general/messages.ws`);
+		ws.onmessage = (event) => {
+			const message = JSON.parse(event.data);
+			if (message.type === "new_message") {
+				addMessage(message);
+			}
+		};
+		fetchMessages();
 	}, []);
 
-  function sendMessage(e){
-    console.log(e);
-    e.preventDefault();
-    if (formValue) {
-      console.log(formValue);
-      socket.emit("chat message", formValue, 'general');
-    }
-  }
+	function sendMessage(e) {
+		e.preventDefault();
+		if (formValue) {
+			api.sendPostMessageRequest("general", formValue);
+			setFormValue("");
+		}
+	}
 
-  function handleFormValueChange(e){
-    setFormValue(e.target.value);
-  }
+	function handleFormValueChange(e) {
+		setFormValue(e.target.value);
+	}
 	return (
 		<>
 			<header>
@@ -41,9 +44,9 @@ function App() {
 				<h1 id="title">Branham Chat</h1>
 			</header>
 			<ul id="messages" className="messages-box">
-				{messages.map(({ msg, metadata }) => (
-					<li>
-						<span className="msg-time">{metadata.timestamp}</span>
+				{messages && messages.map(({ msg, timestamp }) => (
+					<li key={msg + timestamp}>
+						<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
 						<span className="msg-msg">{msg}</span>
 					</li>
 				))}
