@@ -2,7 +2,7 @@ import path from "path";
 import sqlite from "better-sqlite3";
 
 export default class DBManager {
-	static #db_path = new URL(process.env.DB_PATH ? path.resolve(path.resolve(), process.env.DB_PATH) : path.resolve(path.resolve(), "../messages.db"), import.meta.url).pathname;
+	static #db_path = path.resolve(process.env.DB_PATH ?? "messages.db");
 
 	static valid_name(name) {
 		return /[a-z][a-z0-9_]*/.test(name);
