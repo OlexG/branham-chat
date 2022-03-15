@@ -14,7 +14,7 @@ function App() {
 			setMessages(data);
 		}
 		// listen for chat messages using websockets
-		const ws = new WebSocket(`ws://${window.location.host}/rooms/general/messages.ws`);
+		const ws = new WebSocket(`${window.location.protocol.replace("http", "ws")}://${window.location.host}/rooms/general/messages.ws`);
 		ws.onmessage = (event) => {
 			const message = JSON.parse(event.data);
 			if (message.type === "new_message") {
