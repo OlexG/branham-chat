@@ -1,14 +1,18 @@
 import sqlite from "better-sqlite3";
 import path from "path";
+import token_generator from "uuid-token-generator";
+
+const tokgen = new token_generator();
 
 export default class DBManager {
-	static #db_path = new URL(path.resolve(path.resolve(), '../messages.db'), import.meta.url).pathname;
+	static #db_path = new URL(path.resolve(path.resolve(), "./messages.sqlite"), import.meta.url).pathname;
 
 	static valid_name(name) {
 		return /[a-z][a-z0-9_]*/.test(name);
 	}
 
 	constructor() {
+		console.log(this.constructor.#db_path);
 		this.db = sqlite(this.constructor.#db_path, {});
 		this.db.pragma("foreign_keys = true");
 		this.db
@@ -21,12 +25,25 @@ export default class DBManager {
 			.run();
 		this.db
 			.prepare(
+				`CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT,
+          email TEXT UNIQUE,
+          picture TEXT,
+          token TEXT UNIQUE
+        )`
+			)
+			.run();
+		this.db
+			.prepare(
 				`CREATE TABLE IF NOT EXISTS messages (
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
 					msg TEXT,
 					timestamp INTEGER,
-					room INTEGER,
+          room INTEGER,
+          email TEXT,
 					FOREIGN KEY(room) REFERENCES rooms(id) ON DELETE CASCADE
+					FOREIGN KEY(email) REFERENCES users(email) ON DELETE CASCADE
 				)`
 			)
 			.run();
@@ -51,7 +68,7 @@ export default class DBManager {
 		}
 	}
 
-	push_message(room_id, msg, timestamp) {
+	push_message(room_id, msg, timestamp, email) {
 		if (typeof room_id === "string") {
 			room_id = this.room_id(room_id, false);
 		}
@@ -59,7 +76,7 @@ export default class DBManager {
 			timestamp = timestamp.valueOf();
 		}
 
-		const inserted_id = this.db.prepare(`INSERT INTO messages (msg, timestamp, room) VALUES (?, ?, ?)`).run(msg, timestamp, room_id).lastInsertRowid;
+		const inserted_id = this.db.prepare(`INSERT INTO messages (msg, timestamp, room, email) VALUES (?, ?, ?, ?)`).run(msg, timestamp, room_id, email).lastInsertRowid;
 		return {
 			msg,
 			timestamp,
@@ -72,8 +89,37 @@ export default class DBManager {
 		}
 
 		return this.db
-			.prepare(`SELECT msg, timestamp FROM messages WHERE room = ?`)
+			.prepare(`SELECT msg, timestamp, email FROM messages WHERE room = ?`)
 			.all(room_id)
 			.map((row) => ({ timestamp: new Date(row.timestamp), ...row }));
+	}
+
+	add_user(email, name, picture) {
+		const uuid = tokgen.generate();
+		// check if user exists by email
+		const user = this.db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+		if (user) {
+			// just update the token
+			this.db.prepare(`UPDATE users SET token = ? WHERE id = ?`).run(uuid, user.id);
+		} else {
+			this.db.prepare(`INSERT OR IGNORE INTO users (name, email, picture, token) VALUES (?, ?, ?, ?)`).run(name, email, picture, uuid);
+		}
+		return uuid;
+	}
+	verify_user(email, uuid) {
+		const user = this.db.prepare(`SELECT * FROM users WHERE email = ? AND token = ?`).get(email, uuid);
+		if (user) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	get_user(email) {
+		const user = this.db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+		if (user) {
+			return user;
+		} else {
+			return null;
+		}
 	}
 }

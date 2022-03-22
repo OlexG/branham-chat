@@ -1,2 +1,5 @@
 node_modules
 messages.db
+.env
+.parcel-cache/*
+client/dist/*

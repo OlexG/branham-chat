@@ -1,18 +1,20 @@
 import "./App.css";
 import { useState, useEffect } from "react";
 import api from "./api/requests";
-console.log("here");
+import Login from "./Login";
+
 function App() {
 	const [messages, setMessages] = useState([]);
 	const [formValue, setFormValue] = useState("");
-  console.log(messages);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
 	useEffect(() => {
+    if (!isLoggedIn) return;
 		function addMessage(message) {
 			setMessages((messages) => [...messages, message]);
 		}
 		async function fetchMessages() {
 			const { data } = await api.sendGetMessagesRequest("general");
-      console.log(data);
 			setMessages(data);
 		}
 		// listen for chat messages using websockets
@@ -24,7 +26,7 @@ function App() {
 			}
 		};
 		fetchMessages();
-	}, []);
+	}, [isLoggedIn]);
 
 	function sendMessage(e) {
 		e.preventDefault();
@@ -37,6 +39,12 @@ function App() {
 	function handleFormValueChange(e) {
 		setFormValue(e.target.value);
 	}
+  if (!isLoggedIn) {
+    return (
+      <Login setIsLoggedIn={setIsLoggedIn} />
+    );
+  }
+  console.log(messages);
 	return (
 		<>
 			<header>
@@ -44,9 +52,11 @@ function App() {
 				<h1 id="title">Branham Chat</h1>
 			</header>
 			<ul id="messages" className="messages-box">
-				{messages && messages.map(({ msg, timestamp }) => (
+				{messages && messages.map(({ msg, timestamp, user_picture, user_name }) => (
 					<li key={msg + timestamp}>
 						<span className="msg-time">{new Date(parseInt(timestamp)).toISOString()}</span>
+            <img className="user-icon" src={user_picture}/>
+            <span className="user-name">{user_name}</span>
 						<span className="msg-msg">{msg}</span>
 					</li>
 				))}
