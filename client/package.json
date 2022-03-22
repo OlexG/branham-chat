@@ -1,0 +1,9 @@
+{
+	"name": "branham-chat-client",
+	"version": "0.1.0",
+	"type": "module",
+	"scripts": {
+		"dev": "parcel watch --dist-dir build src/index.html",
+		"build": "parcel build src/index.html --dist-dir build"
+	}
+}
