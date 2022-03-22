@@ -1,5 +1,5 @@
 node_modules
-messages.db
+messages.sqlite
 .env
-.parcel-cache/*
+./parcel-cache/*
 client/dist/*

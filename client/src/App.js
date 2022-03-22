@@ -44,7 +44,6 @@ function App() {
       <Login setIsLoggedIn={setIsLoggedIn} />
     );
   }
-  console.log(messages);
 	return (
 		<>
 			<header>
