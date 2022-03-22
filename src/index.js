@@ -73,14 +73,17 @@ app.post("/login", (req, res) => {
   const { token, email, name, picture } = req.body;
   if (!token || !email || !name || !picture) {
     res.status(400).end("Missing required fields");
+    return;
   }
   if (!verify_google_token(token)) {
     res.status(401).end("Invalid token");
+    return;
   }
   // get the last 12 characters of email
   const email_suffix = email.substring(email.length - 12);
   if (email_suffix !== "my.cuhsd.org") {
     res.status(401).end("You are not from Branham High School");
+    return;
   }
   const uuid = db_manager.add_user(email, name, picture);
 
