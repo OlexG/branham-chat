@@ -5,5 +5,13 @@
 	"scripts": {
 		"dev": "parcel watch --dist-dir build src/index.html",
 		"build": "parcel build src/index.html --dist-dir build"
+	},
+	"devDependencies": {
+		"axios": "^0.26.1",
+		"js-cookie": "^3.0.1",
+		"parcel": "^2.3.2",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"react-google-login": "^5.2.2"
 	}
 }
