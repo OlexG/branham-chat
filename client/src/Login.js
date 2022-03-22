@@ -8,12 +8,7 @@ export default function Login({ setIsLoggedIn }) {
 	const [error, setError] = useState(null);
 	async function onSuccess(response) {
 		try {
-			const res = await api.sendLoginRequest(
-				response.tokenId,
-				response.profileObj.email,
-				response.profileObj.name,
-				response.profileObj.imageUrl
-			);
+			const res = await api.sendLoginRequest(response.tokenId);
 			cookies.set("token", res.headers["x-user-token"]);
 			cookies.set("email", response.profileObj.email);
 			setIsLoggedIn(true);

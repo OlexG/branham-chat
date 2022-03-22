@@ -1,9 +1,15 @@
 import * as dotenv from "dotenv";
 import DBManager from "./db.js";
+import { OAuth2Client } from "google-auth-library";
 import enable_ws from "express-ws";
 import express from "express";
 import verify_google_token from "./verification/verify_google_token.js";
 import verify_session_token from "./verification/verify_session_token.js";
+
+const client = new OAuth2Client(
+	process.env.CLIENT_ID,
+	process.env.CLIENT_SECRET
+);
 
 dotenv.config();
 
@@ -61,9 +67,9 @@ app.post("/rooms/:room/messages", verify_session_token, (req, res) => {
 	res.json(send_message(req.params.room, content, user));
 });
 
-app.post("/login", (req, res) => {
-	const { token, email, name, picture } = req.body;
-	if (!token || !email || !name || !picture) {
+app.post("/login", async (req, res) => {
+	const { token } = req.body;
+	if (!token) {
 		res.status(400).end("Missing required fields");
 		return;
 	}
@@ -71,6 +77,13 @@ app.post("/login", (req, res) => {
 		res.status(401).end("Invalid token");
 		return;
 	}
+
+	const ticket = await client.verifyIdToken({
+		audience: process.env.CLIENT_ID,
+		idToken: token,
+	});
+	const { email, name, picture } = ticket.getPayload();
+
 	if (!email.endsWith("@my.cuhsd.org")) {
 		res.status(401).end("You are not from Branham High School");
 		return;

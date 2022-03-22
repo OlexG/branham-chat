@@ -11,11 +11,8 @@ export const sendPostMessageRequest = (room, msg) => {
 	});
 };
 
-export const sendLoginRequest = (token, email, name, picture) => {
+export const sendLoginRequest = (token) => {
 	return axios.post(`${window.location.origin}/login`, {
-		email,
-		name,
-		picture,
 		token,
 	});
 };
