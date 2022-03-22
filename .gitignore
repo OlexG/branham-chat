@@ -4,3 +4,4 @@ client/build
 .parcel-cache
 yarn-error.log
 package-lock.json
+.env

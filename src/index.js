@@ -1,9 +1,9 @@
 import * as dotenv from "dotenv";
-import * as http from "http";
 import DBManager from "./db.js";
 import enable_ws from "express-ws";
 import express from "express";
-import path from "path";
+import verify_google_token from "./verification/verify_google_token.js";
+import verify_session_token from "./verification/verify_session_token.js";
 
 dotenv.config();
 
@@ -15,20 +15,35 @@ app.use(express.json());
 
 // key = room name
 // value = array of websocket clients
-const room_listeners = new Map(db_manager.get_rooms().map(({ name }) => [name, []]));
+const room_listeners = new Map(
+	db_manager.get_rooms().map(({ name }) => [name, []])
+);
 
 app.use(express.static("client/build"));
 
-app.get("/rooms/:room/messages", (req, res) => {
-	const messages = db_manager.get_messages(req.params.room);
+app.get("/rooms/:room/messages", verify_session_token, (req, res) => {
+	let messages = db_manager.get_messages(req.params.room);
+	messages = messages.map((message) => {
+		const user = db_manager.get_user(message.email);
+		const obj = {
+			...message,
+			user_name: user.name,
+			user_picture: user.picture,
+		};
+		// remove email
+		delete obj.email;
+		return obj;
+	});
 	res.json(messages);
 });
 
-function send_message(room, content) {
+function send_message(room, content, user) {
 	const timestamp = new Date().valueOf();
 	const message_data = {
 		type: "new_message",
-		...db_manager.push_message(room, content, timestamp),
+		user_name: user.name,
+		user_picture: user.picture,
+		...db_manager.push_message(room, content, timestamp, user.id),
 	};
 	const stringified = JSON.stringify(message_data);
 	for (const listener of room_listeners.get(room)) {
@@ -37,12 +52,33 @@ function send_message(room, content) {
 	return message_data;
 }
 
-app.post("/rooms/:room/messages", (req, res) => {
+app.post("/rooms/:room/messages", verify_session_token, (req, res) => {
 	const content = req.body.content;
 	if (!content) {
 		res.status(400).end("message content missing or empty");
 	}
-	res.json(send_message(req.params.room, content));
+	const user = db_manager.get_user(req.headers.email);
+	res.json(send_message(req.params.room, content, user));
+});
+
+app.post("/login", (req, res) => {
+	const { token, email, name, picture } = req.body;
+	if (!token || !email || !name || !picture) {
+		res.status(400).end("Missing required fields");
+		return;
+	}
+	if (!verify_google_token(token)) {
+		res.status(401).end("Invalid token");
+		return;
+	}
+	if (!email.endsWith("@my.cuhsd.org")) {
+		res.status(401).end("You are not from Branham High School");
+		return;
+	}
+	const uuid = db_manager.add_user(email, name, picture);
+
+	res.set("X-User-Token", uuid);
+	res.sendStatus(204);
 });
 
 app.ws("/rooms/:room/messages.ws", (ws, req) => {
