@@ -14,8 +14,7 @@ const client = new OAuth2Client(
 dotenv.config();
 
 const app = express();
-// eslint-disable-next-line no-undefined
-enable_ws(app, undefined, {
+enable_ws(app, void(0), {
 	wsOptions: {
 		maxPayload: 65535
 	}
