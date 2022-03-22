@@ -10,7 +10,7 @@ const sendPostMessageRequest = (room, msg) => {
 };
 
 const sendLoginRequest = (token) => {
-  return axios.post(`${proxy}/login`, { token, email, name, picture });
+  return axios.post(`${proxy}/login`, { token });
 }
 
 
