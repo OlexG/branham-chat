@@ -1,5 +1,4 @@
 {
-	printWidth: 100000,
 	tabWidth: 2,
 	useTabs: true,
 	semi: true,
@@ -10,8 +9,6 @@
 	bracketSameLine: false,
 	arrowParens: "always",
 	proseWrap: "never",
-	htmlWhitespaceSensitivity: "strict",
-	vueIndentScriptAndStyle: false,
 	endOfLine: "lf",
 	embeddedLanguageFormatting: "auto",
 }

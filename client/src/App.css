@@ -80,13 +80,13 @@ select {
 }
 
 .user-icon {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
+	height: 20px;
+	width: 20px;
+	border-radius: 50%;
 }
 
 .user-name {
-  font-size: 0.8rem;
-  font-family: "Merriweather Sans", sans-serif;
-  color: #737373;
+	font-size: 0.8rem;
+	font-family: "Merriweather Sans", sans-serif;
+	color: #737373;
 }

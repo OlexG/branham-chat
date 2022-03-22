@@ -1,5 +1,7 @@
 node_modules
-messages.sqlite
+messages.db
+client/build
+.parcel-cache
+yarn-error.log
+package-lock.json
 .env
-.parcel-cache/*
-client/dist/*
