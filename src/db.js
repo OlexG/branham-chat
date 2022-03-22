@@ -136,10 +136,18 @@ export default class DBManager {
 			return false;
 		}
 	}
-	get_user(email) {
+	get_user_by_email(email) {
 		const user = this.db
 			.prepare(`SELECT * FROM users WHERE email = ?`)
 			.get(email);
+		if (user) {
+			return user;
+		} else {
+			return null;
+		}
+	}
+	get_user_by_id(id) {
+		const user = this.db.prepare(`SELECT * FROM users WHERE id = ?`).get(id);
 		if (user) {
 			return user;
 		} else {

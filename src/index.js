@@ -30,7 +30,7 @@ app.use(express.static("client/build"));
 app.get("/rooms/:room/messages", verify_session_token, (req, res) => {
 	let messages = db_manager.get_messages(req.params.room);
 	messages = messages.map((message) => {
-		const user = db_manager.get_user(message.email);
+		const user = db_manager.get_user_by_id(message.user);
 		const obj = {
 			...message,
 			user_name: user.name,
@@ -63,7 +63,7 @@ app.post("/rooms/:room/messages", verify_session_token, (req, res) => {
 	if (!content) {
 		res.status(400).end("message content missing or empty");
 	}
-	const user = db_manager.get_user(req.headers.email);
+	const user = db_manager.get_user_by_email(req.headers.email);
 	res.json(send_message(req.params.room, content, user));
 });
 
