@@ -8,7 +8,7 @@ export default function Login({setIsLoggedIn}) {
   const [error, setError] = useState(false);
 	async function responseGoogle(response) {
     try {
-		  const res = await api.sendLoginRequest(response.tokenId, response.profileObj.email, response.profileObj.name, response.profileObj.imageUrl);
+		  const res = await api.sendLoginRequest(response.tokenId);
       cookies.set('token', res.headers['x-user-token']);
       cookies.set('email', response.profileObj.email);
       setIsLoggedIn(true);

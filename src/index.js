@@ -7,6 +7,9 @@ import * as dotenv from "dotenv";
 import cors from 'cors';
 import verify_google_token from "./verification/verify_google_token.js";
 import verify_session_token from "./verification/verify_session_token.js";
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.CLIENT_ID, process.env.CLIENT_SECRET);
 
 dotenv.config();
 
@@ -69,9 +72,9 @@ app.post("/rooms/:room/messages", verify_session_token, (req, res) => {
 	res.json(send_message(req.params.room, content, user));
 });
 
-app.post("/login", (req, res) => {
-  const { token, email, name, picture } = req.body;
-  if (!token || !email || !name || !picture) {
+app.post("/login", async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
     res.status(400).end("Missing required fields");
     return;
   }
@@ -79,6 +82,16 @@ app.post("/login", (req, res) => {
     res.status(401).end("Invalid token");
     return;
   }
+
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: process.env.CLIENT_ID,
+  })
+  const payload = ticket.getPayload();
+  const email = payload['email'];
+  const name = payload['name'];
+  const picture = payload['picture'];
+
   // get the last 12 characters of email
   const email_suffix = email.substring(email.length - 12);
   if (email_suffix !== "my.cuhsd.org") {

@@ -9,7 +9,7 @@ const sendPostMessageRequest = (room, msg) => {
 	return axios.post(`${proxy}/rooms/${room}/messages`, { content: msg });
 };
 
-const sendLoginRequest = (token, email, name, picture) => {
+const sendLoginRequest = (token) => {
   return axios.post(`${proxy}/login`, { token, email, name, picture });
 }
 
