@@ -1,18 +1,17 @@
-import sqlite from "better-sqlite3";
+import TokenGenerator from "uuid-token-generator";
 import path from "path";
-import token_generator from "uuid-token-generator";
+import sqlite from "better-sqlite3";
 
-const tokgen = new token_generator();
+const tokgen = new TokenGenerator();
 
 export default class DBManager {
-	static #db_path = new URL(path.resolve(path.resolve(), "./messages.sqlite"), import.meta.url).pathname;
+	static #db_path = path.resolve(process.env.DB_PATH ?? "messages.db");
 
 	static valid_name(name) {
 		return /[a-z][a-z0-9_]*/.test(name);
 	}
 
 	constructor() {
-		console.log(this.constructor.#db_path);
 		this.db = sqlite(this.constructor.#db_path, {});
 		this.db.pragma("foreign_keys = true");
 		this.db
@@ -26,12 +25,12 @@ export default class DBManager {
 		this.db
 			.prepare(
 				`CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT,
-          email TEXT UNIQUE,
-          picture TEXT,
-          token TEXT UNIQUE
-        )`
+					id INTEGER PRIMARY KEY AUTOINCREMENT,
+					name TEXT,
+					email TEXT UNIQUE,
+					picture TEXT,
+					token TEXT UNIQUE
+				)`
 			)
 			.run();
 		this.db
@@ -40,14 +39,16 @@ export default class DBManager {
 					id INTEGER PRIMARY KEY AUTOINCREMENT,
 					msg TEXT,
 					timestamp INTEGER,
-          room INTEGER,
-          email TEXT,
+					room INTEGER,
+					user INTEGER,
 					FOREIGN KEY(room) REFERENCES rooms(id) ON DELETE CASCADE
-					FOREIGN KEY(email) REFERENCES users(email) ON DELETE CASCADE
+					FOREIGN KEY(user) REFERENCES users(id)
 				)`
 			)
 			.run();
-		this.db.prepare(`INSERT OR IGNORE INTO rooms (name) VALUES ('general')`).run();
+		this.db
+			.prepare(`INSERT OR IGNORE INTO rooms (name) VALUES ('general')`)
+			.run();
 	}
 
 	get_rooms() {
@@ -58,17 +59,23 @@ export default class DBManager {
 			throw new Error(`That room name ("${name}") is not valid`);
 		}
 		if (create) {
-			this.db.prepare(`INSERT OR IGNORE INTO rooms (name) VALUES (?)`).run(name);
+			this.db
+				.prepare(`INSERT OR IGNORE INTO rooms (name) VALUES (?)`)
+				.run(name);
 		}
-		const ret = this.db.prepare(`SELECT id FROM rooms WHERE name = ?`).get(name)?.id;
+		const ret = this.db
+			.prepare(`SELECT id FROM rooms WHERE name = ?`)
+			.get(name)?.id;
 		if (create || ret) {
 			return ret;
 		} else {
-			throw new Error("The room does not exist and was not requested to be created");
+			throw new Error(
+				"The room does not exist and was not requested to be created"
+			);
 		}
 	}
 
-	push_message(room_id, msg, timestamp, email) {
+	push_message(room_id, msg, timestamp, user_id) {
 		if (typeof room_id === "string") {
 			room_id = this.room_id(room_id, false);
 		}
@@ -76,11 +83,16 @@ export default class DBManager {
 			timestamp = timestamp.valueOf();
 		}
 
-		const inserted_id = this.db.prepare(`INSERT INTO messages (msg, timestamp, room, email) VALUES (?, ?, ?, ?)`).run(msg, timestamp, room_id, email).lastInsertRowid;
+		const inserted_id = this.db
+			.prepare(
+				`INSERT INTO messages (msg, timestamp, room, user) VALUES (?, ?, ?, ?)`
+			)
+			.run(msg, timestamp, room_id, user_id).lastInsertRowid;
 		return {
+			id: inserted_id,
 			msg,
 			timestamp,
-			id: inserted_id,
+			user: user_id,
 		};
 	}
 	get_messages(room_id) {
@@ -89,7 +101,7 @@ export default class DBManager {
 		}
 
 		return this.db
-			.prepare(`SELECT msg, timestamp, email FROM messages WHERE room = ?`)
+			.prepare(`SELECT msg, timestamp, user FROM messages WHERE room = ?`)
 			.all(room_id)
 			.map((row) => ({ timestamp: new Date(row.timestamp), ...row }));
 	}
@@ -97,17 +109,27 @@ export default class DBManager {
 	add_user(email, name, picture) {
 		const uuid = tokgen.generate();
 		// check if user exists by email
-		const user = this.db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+		const user = this.db
+			.prepare(`SELECT * FROM users WHERE email = ?`)
+			.get(email);
 		if (user) {
 			// just update the token
-			this.db.prepare(`UPDATE users SET token = ? WHERE id = ?`).run(uuid, user.id);
+			this.db
+				.prepare(`UPDATE users SET token = ? WHERE id = ?`)
+				.run(uuid, user.id);
 		} else {
-			this.db.prepare(`INSERT OR IGNORE INTO users (name, email, picture, token) VALUES (?, ?, ?, ?)`).run(name, email, picture, uuid);
+			this.db
+				.prepare(
+					`INSERT OR IGNORE INTO users (name, email, picture, token) VALUES (?, ?, ?, ?)`
+				)
+				.run(name, email, picture, uuid);
 		}
 		return uuid;
 	}
 	verify_user(email, uuid) {
-		const user = this.db.prepare(`SELECT * FROM users WHERE email = ? AND token = ?`).get(email, uuid);
+		const user = this.db
+			.prepare(`SELECT * FROM users WHERE email = ? AND token = ?`)
+			.get(email, uuid);
 		if (user) {
 			return true;
 		} else {
@@ -115,7 +137,9 @@ export default class DBManager {
 		}
 	}
 	get_user(email) {
-		const user = this.db.prepare(`SELECT * FROM users WHERE email = ?`).get(email);
+		const user = this.db
+			.prepare(`SELECT * FROM users WHERE email = ?`)
+			.get(email);
 		if (user) {
 			return user;
 		} else {

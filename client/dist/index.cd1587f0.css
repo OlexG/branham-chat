@@ -1,3 +1,50 @@
+:root {
+	--background-primary: #fff;
+	--background-secondary: #eee;
+	--foreground-primary: #000;
+	--foreground-secondary: #777;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--background-primary: #444;
+		--background-secondary: #333;
+		--foreground-primary: #fff;
+		--foreground-secondary: #ccc;
+	}
+}
+
+* {
+	color: var(--foreground-primary);
+	box-sizing: border-box;
+}
+
+html,
+body {
+	box-sizing: border-box;
+	height: 100vh;
+	width: 100ww;
+	margin: 0;
+	background-color: var(--background-primary);
+	overflow-y: hidden;
+}
+
+#root {
+	box-sizing: border-box;
+	height: 100vh;
+	width: 100ww;
+	margin: 0;
+	background-color: var(--background-primary);
+	overflow-y: hidden;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	grid-template-columns: 1fr;
+}
+
+#root > * {
+	padding: 1em;
+}
+
 header,
 footer {
 	display: flex;
@@ -80,13 +127,21 @@ select {
 }
 
 .user-icon {
-	height: 20px;
-	width: 20px;
-	border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
 }
 
 .user-name {
-	font-size: 0.8rem;
-	font-family: "Merriweather Sans", sans-serif;
-	color: #737373;
+  font-size: 0.8rem;
+  font-family: "Merriweather Sans", sans-serif;
+  color: #737373;
 }
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+/*# sourceMappingURL=index.cd1587f0.css.map */
