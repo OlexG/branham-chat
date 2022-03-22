@@ -14,7 +14,13 @@ const client = new OAuth2Client(
 dotenv.config();
 
 const app = express();
-enable_ws(app);
+// eslint-disable-next-line no-undefined
+enable_ws(app, undefined, {
+	wsOptions: {
+		maxPayload: 65535
+	}
+});
+
 const db_manager = new DBManager();
 
 app.use(express.json());
