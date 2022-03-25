@@ -1,4 +1,0 @@
-address = "127.0.0.1:3000"
-log_level = "debug"
-client_secret = ""
-client_id = ""
