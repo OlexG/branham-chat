@@ -2,12 +2,12 @@ use serde::{Deserialize, Serialize};
 
 pub type Id = u64;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct MessageRequest {
 	pub content: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct Message {
 	pub id: Id,
 	pub content: String,
@@ -16,7 +16,7 @@ pub struct Message {
 	pub user: User,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct User {
 	#[serde(rename = "user_name")]
 	pub name: String,
@@ -24,7 +24,7 @@ pub struct User {
 	pub picture: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum MessageEvent {
 	NewMessage(Message),

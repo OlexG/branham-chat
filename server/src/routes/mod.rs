@@ -36,11 +36,18 @@ pub async fn post_message(
 		user: fake_user(),
 	};
 	let response = serde_json::to_string(&message);
-	server.do_send(crate::actors::server::NewMessage {
-		message,
-		room: room.into_inner(),
-	});
-	response
+	if let Err(err) = server
+		.send(crate::actors::server::NewMessage {
+			message,
+			room: room.into_inner(),
+		})
+		.await
+		.unwrap()
+	{
+		Err(actix_web::error::InternalError::from(err))
+	} else {
+		Ok(response)
+	}
 }
 
 #[route("/rooms/{room}/messages.ws", method = "GET")]
