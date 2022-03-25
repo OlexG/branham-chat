@@ -56,14 +56,14 @@ function App() {
 			</header>
 			<ul id="messages" className="messages-box">
 				{messages &&
-					messages.map(({ msg, timestamp, user_picture, user_name }) => (
-						<li key={msg + timestamp}>
+					messages.map(({ content, timestamp, user_picture, user_name }) => (
+						<li key={content + timestamp}>
 							<span className="msg-time">
 								{new Date(parseInt(timestamp, 10)).toISOString()}
 							</span>
 							<img className="user-icon" src={user_picture} />
 							<span className="user-name">{user_name}</span>
-							<span className="msg-msg">{msg}</span>
+							<span className="msg-msg">{content}</span>
 						</li>
 					))}
 			</ul>
