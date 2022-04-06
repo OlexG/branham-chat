@@ -2,11 +2,13 @@ use actix::Actor as _;
 use actix_web::{middleware as mid, web, App as ActixApp, HttpServer};
 use anyhow::Context as _;
 use std::sync::Arc;
+use tokio::sync::Mutex;
 
 mod actors;
 mod annotated;
 mod config;
 mod data;
+mod db;
 mod oauth;
 mod routes;
 
@@ -22,12 +24,16 @@ async fn main_() -> anyhow::Result<()> {
 
 	let server_addr = actors::Server::new().start();
 
+	let database = db::Database::open(&config.db_path).context("Initializing database")?;
+	let database = Arc::new(Mutex::new(database));
+
 	let mut http = {
 		let config = config.clone();
 		HttpServer::new(move || {
 			ActixApp::new()
 				.app_data(web::Data::from(config.clone()))
 				.app_data(web::Data::new(server_addr.clone()))
+				.app_data(web::Data::from(Arc::clone(&database)))
 				.wrap(mid::NormalizePath::trim())
 				.service(routes::get_messages)
 				.service(routes::post_message)

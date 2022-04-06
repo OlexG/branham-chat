@@ -1,5 +1,6 @@
 use log::LevelFilter;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 
 pub mod bindable;
 pub use bindable::BindableAddr;
@@ -13,6 +14,12 @@ pub struct Config {
 	pub client_secret: String,
 	pub client_id: String,
 	pub num_workers: Option<usize>,
+	#[serde(default = "default_db_path")]
+	pub db_path: PathBuf,
+}
+
+fn default_db_path() -> PathBuf {
+	"messages.db".into()
 }
 
 fn default_address() -> BindableAddr {
