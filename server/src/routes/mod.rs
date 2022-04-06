@@ -76,9 +76,31 @@ pub struct LoginBody {
 	token: String,
 }
 #[route("/login", method = "POST")]
-pub async fn oauth_login(data: web::Json<LoginBody>, config: web::Data<Config>) -> impl Responder {
-	use crate::oauth::resolve_oauth_token;
-	let user_info = resolve_oauth_token(&config.client_id, &data.token).await?;
-	// todo
-	Ok::<_, crate::annotated::AnnotatedError>(format!("{:?}", user_info))
+pub async fn oauth_login(
+	data: web::Json<LoginBody>,
+	config: web::Data<Config>,
+	db: web::Data<Mutex<Database>>,
+) -> impl Responder {
+	use actix_web::cookie::{self, Cookie};
+	let user_info = match crate::oauth::resolve_oauth_token(&config.client_id, &data.token).await {
+		Ok(info) => info,
+		Err(annotated) => return annotated.into(),
+	};
+	let token = match db
+		.lock()
+		.await
+		.refresh_user(&user_info)
+		.map_err(|err| AnnotatedError(HttpStatus::INTERNAL_SERVER_ERROR, err))
+	{
+		Ok(token) => token,
+		Err(annotated) => return annotated.into(),
+	};
+	HttpResponse::build(HttpStatus::NO_CONTENT)
+		.cookie(
+			Cookie::build("token", token.to_string())
+				.http_only(true)
+				.same_site(cookie::SameSite::Strict)
+				.finish(),
+		)
+		.finish()
 }
