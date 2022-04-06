@@ -1,16 +1,14 @@
 import "./Login.css";
 import * as api from "./api/requests";
 import GoogleLogin from "react-google-login";
-import cookies from "js-cookie";
 import { useState } from "react";
 
 export default function Login({ setIsLoggedIn }) {
 	const [error, setError] = useState(null);
 	async function onSuccess(response) {
 		try {
-			const res = await api.sendLoginRequest(response.tokenId);
-			cookies.set("token", res.headers["x-user-token"]);
-			cookies.set("email", response.profileObj.email);
+			await api.sendLoginRequest(response.tokenId);
+			// API response sets the token cookie
 			setIsLoggedIn(true);
 		} catch (err) {
 			console.error("our server failed", err);
