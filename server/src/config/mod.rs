@@ -8,12 +8,8 @@ pub use bindable::BindableAddr;
 pub struct Config {
 	#[serde(default = "default_address")]
 	pub address: BindableAddr,
-	#[serde(
-		serialize_with = "serialize_log_level",
-		deserialize_with = "deserialize_log_level",
-		default = "default_log_level"
-	)]
-	pub log_level: LevelFilter,
+	#[serde(default = "default_log_level")]
+	pub log_level: LogLevel,
 	pub client_secret: String,
 	pub client_id: String,
 	pub num_workers: Option<usize>,
@@ -23,13 +19,13 @@ fn default_address() -> BindableAddr {
 	"tcp://127.0.0.1:3000".parse().unwrap()
 }
 
-fn serialize_log_level<S: serde::ser::Serializer>(
+fn serialize_level_filter<S: serde::ser::Serializer>(
 	level: &LevelFilter,
 	s: S,
 ) -> Result<S::Ok, S::Error> {
 	level.to_string().serialize(s)
 }
-fn deserialize_log_level<'de, D: serde::de::Deserializer<'de>>(
+fn deserialize_level_filter<'de, D: serde::de::Deserializer<'de>>(
 	d: D,
 ) -> Result<LevelFilter, D::Error>
 where
@@ -40,8 +36,58 @@ where
 		.map_err(serde::de::Error::custom)
 }
 
-fn default_log_level() -> LevelFilter {
+#[derive(Serialize, Deserialize)]
+#[serde(from = "LogLevelSerdeHelper")]
+pub struct LogLevel {
+	#[serde(serialize_with = "serialize_level_filter")]
+	pub internal: LevelFilter,
+	#[serde(serialize_with = "serialize_level_filter")]
+	pub external: LevelFilter,
+}
+
+const fn default_log_level_internal() -> LevelFilter {
+	LevelFilter::Info
+}
+
+const fn default_log_level_external() -> LevelFilter {
 	LevelFilter::Warn
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum LogLevelSerdeHelper {
+	#[serde(deserialize_with = "deserialize_level_filter")]
+	Together(LevelFilter),
+	Separate {
+		#[serde(
+			deserialize_with = "deserialize_level_filter",
+			default = "default_log_level_internal"
+		)]
+		internal: LevelFilter,
+		#[serde(
+			deserialize_with = "deserialize_level_filter",
+			default = "default_log_level_external"
+		)]
+		external: LevelFilter,
+	},
+}
+impl From<LogLevelSerdeHelper> for LogLevel {
+	fn from(helper: LogLevelSerdeHelper) -> Self {
+		match helper {
+			LogLevelSerdeHelper::Together(level) => Self {
+				internal: level,
+				external: level,
+			},
+			LogLevelSerdeHelper::Separate { internal, external } => Self { internal, external },
+		}
+	}
+}
+
+const fn default_log_level() -> LogLevel {
+	LogLevel {
+		internal: default_log_level_internal(),
+		external: default_log_level_external(),
+	}
 }
 
 pub fn config() -> anyhow::Result<Config> {

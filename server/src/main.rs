@@ -13,7 +13,8 @@ mod routes;
 async fn main_() -> anyhow::Result<()> {
 	let config = Arc::new(config::config().context("Reading configuration")?);
 	simple_logger::SimpleLogger::new()
-		.with_level(config.log_level)
+		.with_level(config.log_level.external)
+		.with_module_level(env!("CARGO_PKG_NAME"), config.log_level.internal)
 		.init()
 		.context("Initializing logging")?;
 
