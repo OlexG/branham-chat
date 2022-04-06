@@ -5,23 +5,23 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
 pub struct UserInfo {
-	email: String,
-	name: String,
+	pub email: String,
+	pub name: String,
 	#[serde(rename = "picture")]
-	profile_picture: String,
+	pub profile_picture: String,
 }
 
 pub async fn resolve_oauth_token(audience: &str, token: &str) -> Result<UserInfo, AnnotatedError> {
 	#[derive(Deserialize)]
 	struct Response {
 		#[serde(rename = "iss")]
-		issuer: String,
+		pub issuer: String,
 		#[serde(rename = "aud")]
-		audience: String,
+		pub audience: String,
 		#[serde(rename = "hd")]
-		hosted_domain: String,
+		pub hosted_domain: String,
 		#[serde(flatten)]
-		info: UserInfo,
+		pub info: UserInfo,
 	}
 
 	#[derive(Serialize)]
