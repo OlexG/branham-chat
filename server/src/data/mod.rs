@@ -21,7 +21,7 @@ macro_rules! typed_id {
 		#[derive(Clone, Copy, Debug)]
 		pub struct $name(pub Id);
 		impl $for {
-			fn id(&self) -> $name {
+			pub fn id(&self) -> $name {
 				$name(self.id)
 			}
 		}
