@@ -3,6 +3,12 @@ use serde::{Deserialize, Serialize};
 /// Should be treated as an arbitrary integral type
 pub type Id = i64;
 
+mod token;
+pub use token::Token;
+
+mod timestamp;
+pub use timestamp::Timestamp;
+
 #[derive(Deserialize, Debug)]
 pub struct MessageRequest {
 	pub content: String,

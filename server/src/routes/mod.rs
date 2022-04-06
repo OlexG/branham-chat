@@ -1,15 +1,22 @@
 use crate::actors::{Client, Server};
+use crate::annotated::AnnotatedError;
 use crate::config::Config;
 use crate::data::{Message, MessageRequest, User};
+use crate::db::Database;
 use actix::Addr;
+use actix_web::http::StatusCode as HttpStatus;
+use actix_web::HttpResponse;
 use actix_web::{route, web, HttpRequest, Responder};
 use actix_web_actors::ws;
+use tokio::sync::Mutex;
 
 #[deprecated = "TODO actual users"]
 fn fake_user() -> User {
 	User {
+		id: 0,
 		name: "bob".to_owned(),
 		picture: "https://picsum.photos/64/64".to_owned(),
+		email: "bob@example.com".to_owned(),
 	}
 }
 
@@ -18,7 +25,7 @@ pub async fn get_messages(room: web::Path<String>) -> impl Responder {
 	web::Json([Message {
 		id: 3,
 		content: format!("you are in room {}", room.into_inner()),
-		timestamp: 123,
+		timestamp: time::OffsetDateTime::UNIX_EPOCH.into(),
 		user: fake_user(),
 	}])
 }
@@ -32,7 +39,7 @@ pub async fn post_message(
 	let message = Message {
 		id: 3,
 		content: message.into_inner().content,
-		timestamp: 8,
+		timestamp: time::OffsetDateTime::UNIX_EPOCH.into(),
 		user: fake_user(),
 	};
 	let response = serde_json::to_string(&message);
