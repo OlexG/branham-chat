@@ -28,10 +28,10 @@ async fn main_() -> anyhow::Result<()> {
 	let database = Arc::new(Mutex::new(database));
 
 	let mut http = {
-		let config = config.clone();
+		let config = Arc::clone(&config);
 		HttpServer::new(move || {
 			ActixApp::new()
-				.app_data(web::Data::from(config.clone()))
+				.app_data(web::Data::from(Arc::clone(&config)))
 				.app_data(web::Data::new(server_addr.clone()))
 				.app_data(web::Data::from(Arc::clone(&database)))
 				.wrap(mid::NormalizePath::trim())

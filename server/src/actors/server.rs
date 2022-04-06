@@ -3,6 +3,7 @@ use crate::data;
 use actix::{Actor, Addr, Context, Handler, Message as ActixMessage};
 use actix_web::http::StatusCode as HttpStatus;
 use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 
 pub struct Server {
 	clients: HashMap<ClientId, Addr<Client>>,
@@ -129,10 +130,10 @@ impl Handler<NewMessage> for Server {
 			log::warn!("Attempted to send message to unknown room {:?}", event.room);
 			NewMessageError::UnknownRoom
 		})?;
-		let message = std::sync::Arc::new(data::MessageEvent::NewMessage(event.message));
+		let message = Arc::new(data::MessageEvent::NewMessage(event.message));
 		for client_id in room {
 			if let Some(client) = self.clients.get_mut(client_id) {
-				client.do_send(client::MessageEvent(message.clone()));
+				client.do_send(client::MessageEvent(Arc::clone(&message)));
 			}
 		}
 		Ok(())
