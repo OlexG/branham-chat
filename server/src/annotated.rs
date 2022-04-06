@@ -1,8 +1,15 @@
 use actix_web::http::StatusCode as HttpStatus;
+use actix_web::HttpResponse;
 use anyhow::Error;
 
 #[derive(Debug)]
 pub struct AnnotatedError(pub HttpStatus, pub Error);
+
+impl From<AnnotatedError> for HttpResponse {
+	fn from(AnnotatedError(status, inner): AnnotatedError) -> HttpResponse {
+		HttpResponse::build(status).body(format!("{:?}", inner))
+	}
+}
 
 impl std::fmt::Display for AnnotatedError {
 	fn fmt(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
