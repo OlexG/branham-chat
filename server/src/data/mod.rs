@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-pub type Id = u64;
+/// Should be treated as an arbitrary integral type
+pub type Id = i64;
 
 #[derive(Deserialize, Debug)]
 pub struct MessageRequest {
