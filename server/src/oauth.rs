@@ -19,7 +19,7 @@ pub async fn resolve_oauth_token(audience: &str, token: &str) -> actix_web::Resu
 		#[serde(rename = "aud")]
 		pub audience: String,
 		#[serde(rename = "hd")]
-		pub hosted_domain: String,
+		pub hosted_domain: Option<String>,
 		#[serde(flatten)]
 		pub info: UserInfo,
 	}
@@ -64,8 +64,11 @@ pub async fn resolve_oauth_token(audience: &str, token: &str) -> actix_web::Resu
 	if response.audience != audience {
 		return Err(InternalError::new("Invalid audience", HttpStatus::FORBIDDEN).into());
 	}
-	if response.hosted_domain != "my.cuhsd.org" {
-		return Err(InternalError::new("Invalid hosted domain", HttpStatus::FORBIDDEN).into());
+	if !match response.hosted_domain {
+		Some(hosted_domain) => hosted_domain == "my.cuhsd.org",
+		None => response.info.email.ends_with("@my.cuhsd.org"),
+	} {
+		return Err(InternalError::new("Invalid domain", HttpStatus::FORBIDDEN).into());
 	}
 
 	Ok(response.info)
