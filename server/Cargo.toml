@@ -10,6 +10,7 @@ actix-web = { version = "4", features = ["rustls", "cookies"] }
 actix-web-actors = "4"
 awc = { version = "3", features = ["rustls"] }
 anyhow = "1"
+base64 = "0.13"
 figment = { version = "0.10", features = ["toml", "env"] }
 log = "0.4"
 rand = "0.8"

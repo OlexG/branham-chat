@@ -422,6 +422,7 @@ dependencies = [
  "actix-web-actors",
  "anyhow",
  "awc",
+ "base64",
  "figment",
  "log",
  "rand",

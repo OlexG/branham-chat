@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS users (
 	name TEXT NOT NULL,
 	email TEXT NOT NULL UNIQUE,
 	picture TEXT NOT NULL,
-	token INTEGER NOT NULL UNIQUE
+	token BLOB NOT NULL UNIQUE
 ) STRICT
 			"#,
 			)
@@ -159,15 +159,15 @@ CREATE TABLE IF NOT EXISTS messages (
 			..
 		}: &crate::oauth::UserInfo,
 	) -> Result<data::Token> {
-		use rand::Rng as _;
-		let new_token = data::Token(rand::thread_rng().gen());
+		let new_token = data::Token::generate();
 		// update user's token when user already exists with `ON CONFLICT (email) DO UPDATE`
 		self.insert("INSERT INTO users (name, email, picture, token) VALUES (?, ?, ?, ?) ON CONFLICT (email) DO UPDATE SET token=excluded.token", [
 			&name as &dyn rusqlite::ToSql,
 			&email,
 			&picture,
-			&new_token.0,
-		]).map(|token| token.into())
+			&new_token,
+		])?;
+		Ok(new_token)
 	}
 	pub fn get_user_by_id(&self, id: data::UserId) -> Result<Option<data::User>> {
 		self
@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS messages (
 	pub fn get_user_by_token(&self, token: &data::Token) -> Result<Option<data::User>> {
 		self
 			.prepare("SELECT * FROM users WHERE token = ?")?
-			.query_row([token.0], |row| {
+			.query_row([token], |row| {
 				Ok(data::User {
 					id: row.get("id")?,
 					name: row.get("name")?,
