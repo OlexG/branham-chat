@@ -2,7 +2,7 @@ use actix::Actor as _;
 use actix_web::{middleware as mid, web, App as ActixApp, HttpServer};
 use anyhow::Context as _;
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use std::sync::Mutex;
 
 mod actors;
 mod config;

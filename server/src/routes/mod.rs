@@ -8,7 +8,7 @@ use actix_web::http::StatusCode as HttpStatus;
 use actix_web::HttpResponse;
 use actix_web::{route, web, HttpRequest, Responder};
 use actix_web_actors::ws;
-use tokio::sync::Mutex;
+use std::sync::Mutex;
 
 #[deprecated = "TODO actual users"]
 fn fake_user() -> User {
@@ -85,7 +85,7 @@ pub async fn oauth_login(
 	let user_info = crate::oauth::resolve_oauth_token(&config.client_id, &data.token).await?;
 	let token = db
 		.lock()
-		.await
+		.unwrap()
 		.refresh_user(&user_info)
 		.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
 	Ok(
