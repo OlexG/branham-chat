@@ -104,11 +104,11 @@ CREATE TABLE IF NOT EXISTS messages (
 	}
 	pub fn get_room_by_name(&self, name: &str) -> Result<Option<data::Room>> {
 		self
-			.prepare("SELECT id FROM rooms WHERE name = ?")?
+			.prepare("SELECT * FROM rooms WHERE name = ?")?
 			.query_row([name], |row| {
 				Ok(data::Room {
 					id: row.get("id")?,
-					name: name.to_owned(),
+					name: row.get("name")?,
 				})
 			})
 			.optional()
