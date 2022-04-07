@@ -59,7 +59,7 @@ function App() {
 					messages.map(({ content, timestamp, user_picture, user_name }) => (
 						<li key={content + timestamp}>
 							<span className="msg-time">
-								{new Date(parseInt(timestamp, 10)).toISOString()}
+								{new Date(parseInt(timestamp, 10) * 1000).toISOString()}
 							</span>
 							<img className="user-icon" src={user_picture} />
 							<span className="user-name">{user_name}</span>
