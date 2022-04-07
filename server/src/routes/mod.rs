@@ -1,6 +1,6 @@
 use crate::actors::{Client, Server};
 use crate::config::Config;
-use crate::data::{Message, MessageRequest, User};
+use crate::data;
 use crate::db::Database;
 use actix::Addr;
 use actix_web::error::InternalError;
@@ -10,51 +10,69 @@ use actix_web::{route, web, HttpRequest, Responder};
 use actix_web_actors::ws;
 use std::sync::Mutex;
 
-#[deprecated = "TODO actual users"]
-fn fake_user() -> User {
-	User {
-		id: 0,
-		name: "bob".to_owned(),
-		picture: "https://picsum.photos/64/64".to_owned(),
-		email: "bob@example.com".to_owned(),
+mod helpers;
+
+fn get_room(db: &Database, room: &str) -> Result<data::RoomId, InternalError<anyhow::Error>> {
+	match db.get_room_by_name(room) {
+		Ok(Some(room)) => Ok(room.id()),
+		Ok(None) => Err(InternalError::new(
+			anyhow::anyhow!("Invalid room {:?}", room),
+			HttpStatus::NOT_FOUND,
+		)),
+		Err(err) => Err(InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR)),
 	}
 }
 
 #[route("/rooms/{room}/messages", method = "GET")]
-pub async fn get_messages(room: web::Path<String>) -> impl Responder {
-	web::Json([Message {
-		id: 3,
-		content: format!("you are in room {}", room.into_inner()),
-		timestamp: time::OffsetDateTime::UNIX_EPOCH.into(),
-		user: fake_user(),
-	}])
+pub async fn get_messages(
+	room: web::Path<String>,
+	db: web::Data<Mutex<Database>>,
+	_auth: helpers::Auth,
+) -> impl Responder {
+	let db = db.lock().unwrap();
+	let room = get_room(&db, &room.into_inner())?;
+	match db.get_messages(room) {
+		Ok(messages) => Ok(web::Json(messages)),
+		Err(err) => Err(InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR)),
+	}
 }
 
 #[route("/rooms/{room}/messages", method = "POST")]
 pub async fn post_message(
 	room: web::Path<String>,
-	message: web::Json<MessageRequest>,
+	req: web::Json<data::MessageRequest>,
 	server: web::Data<Addr<Server>>,
-) -> impl Responder {
-	let message = Message {
-		id: 3,
-		content: message.into_inner().content,
-		timestamp: time::OffsetDateTime::UNIX_EPOCH.into(),
-		user: fake_user(),
+	db: web::Data<Mutex<Database>>,
+	auth: helpers::Auth,
+) -> actix_web::Result<HttpResponse> {
+	let user = auth.into_inner();
+	let now = data::Timestamp::now();
+	let room_name = room.into_inner();
+	let message_id = {
+		let db = db.lock().unwrap();
+		let room_id = get_room(&db, &room_name)?;
+		let message_id = db
+			.push_message(room_id, user.id(), &req.content, &now)
+			.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
+		message_id.0
 	};
-	let response = serde_json::to_string(&message);
-	if let Err(err) = server
+	let message = data::Message {
+		id: message_id,
+		user,
+		content: req.into_inner().content,
+		timestamp: now,
+	};
+	let message_response = serde_json::to_string(&message)
+		.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
+	server
 		.send(crate::actors::server::NewMessage {
 			message,
-			room: room.into_inner(),
+			room: room_name,
 		})
 		.await
 		.unwrap()
-	{
-		Err(actix_web::error::InternalError::from(err))
-	} else {
-		Ok(response)
-	}
+		.map_err(InternalError::from)?;
+	Ok(HttpResponse::build(HttpStatus::OK).body(message_response))
 }
 
 #[route("/rooms/{room}/messages.ws", method = "GET")]
@@ -63,6 +81,7 @@ pub async fn messages_ws(
 	server: web::Data<Addr<Server>>,
 	req: HttpRequest,
 	stream: web::Payload,
+	_auth: helpers::Auth,
 ) -> impl Responder {
 	ws::start(
 		Client::new((*server.into_inner()).clone(), room.into_inner()),
