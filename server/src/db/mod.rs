@@ -169,12 +169,6 @@ CREATE TABLE IF NOT EXISTS messages (
 			&new_token.0,
 		]).map(|token| token.into())
 	}
-	pub fn verify_user_token(&self, email: &str, token: &str) -> Result<bool> {
-		self
-			.prepare("SELECT count(id) FROM users WHERE email = ? AND token = ?")?
-			.exists([email, token])
-			.map_err(anyhow::Error::from)
-	}
 	pub fn get_user_by_id(&self, id: data::UserId) -> Result<Option<data::User>> {
 		self
 			.prepare("SELECT * FROM users WHERE id = ?")?
@@ -193,6 +187,20 @@ CREATE TABLE IF NOT EXISTS messages (
 		self
 			.prepare("SELECT * FROM users WHERE email = ?")?
 			.query_row([email], |row| {
+				Ok(data::User {
+					id: row.get("id")?,
+					name: row.get("name")?,
+					picture: row.get("picture")?,
+					email: row.get("email")?,
+				})
+			})
+			.optional()
+			.map_err(anyhow::Error::from)
+	}
+	pub fn get_user_by_token(&self, token: &data::Token) -> Result<Option<data::User>> {
+		self
+			.prepare("SELECT * FROM users WHERE token = ?")?
+			.query_row([token.0], |row| {
 				Ok(data::User {
 					id: row.get("id")?,
 					name: row.get("name")?,
