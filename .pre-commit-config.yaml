@@ -24,3 +24,12 @@ repos:
     rev: v8.10.0
     hooks:
       - id: eslint
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        language: system
+        entry: bash -c 'cd server && cargo fmt'
+        pass_filenames: false
+        types: [rust]
+        files: ^server/

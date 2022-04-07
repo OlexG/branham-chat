@@ -6,9 +6,9 @@
 	],
 	"private": true,
 	"scripts": {
-		"server:dev": "cd server && yarn dev",
+		"server:dev": "cd server && cargo run",
 		"client:dev": "cd client && yarn dev",
-		"server:start": "cd server && yarn start",
+		"server:start": "cd server && cargo run --release",
 		"client:build": "cd client && yarn build",
 		"dev": "run-p *:dev",
 		"start": "run-s client:build server:start"
