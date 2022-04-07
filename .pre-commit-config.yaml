@@ -33,17 +33,3 @@ repos:
         pass_filenames: false
         types: [rust]
         files: ^server/
-      - id: cargo-check
-        name: cargo check
-        language: system
-        entry: bash -c 'cd server && cargo check'
-        pass_filenames: false
-        types: [rust]
-        files: ^server/
-      - id: clippy
-        name: cargo clippy
-        language: system
-        entry: bash -c 'cd server && cargo clippy -- -D warnings'
-        pass_filenames: false
-        types: [rust]
-        files: ^server/
