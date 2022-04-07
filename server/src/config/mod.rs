@@ -97,12 +97,11 @@ const fn default_log_level() -> LogLevel {
 	}
 }
 
-pub fn config() -> anyhow::Result<Config> {
+pub fn config() -> Result<Config, figment::Error> {
 	use figment::providers::Format as _;
 
 	figment::Figment::new()
 		.merge(figment::providers::Toml::file("branham-chat.toml"))
 		.merge(figment::providers::Env::prefixed("BRANHAM_CHAT_"))
 		.extract()
-		.map_err(anyhow::Error::from)
 }
