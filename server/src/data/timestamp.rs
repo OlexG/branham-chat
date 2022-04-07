@@ -8,6 +8,12 @@ use time::OffsetDateTime;
 #[derive(Clone, Debug)]
 pub struct Timestamp(pub OffsetDateTime);
 
+impl Timestamp {
+	pub fn now() -> Self {
+		Self(OffsetDateTime::now_utc())
+	}
+}
+
 impl Deref for Timestamp {
 	type Target = OffsetDateTime;
 	fn deref(&self) -> &Self::Target {
