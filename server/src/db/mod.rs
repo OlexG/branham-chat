@@ -143,7 +143,8 @@ CREATE TABLE IF NOT EXISTS messages (
 					content: row.get("content")?,
 					timestamp: row.get("timestamp")?,
 					user: self
-						.get_user_by_id(data::UserId(row.get("user")?))?
+						.get_user_by_id(data::UserId(row.get("user")?))
+						.context("Getting user for message")?
 						.unwrap(), // foreign key
 				})
 			})?

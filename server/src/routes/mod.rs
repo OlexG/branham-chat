@@ -8,6 +8,7 @@ use actix_web::http::StatusCode as HttpStatus;
 use actix_web::HttpResponse;
 use actix_web::{route, web, HttpRequest, Responder};
 use actix_web_actors::ws;
+use anyhow::Context as _;
 use std::sync::Mutex;
 
 mod helpers;
@@ -19,7 +20,10 @@ fn get_room(db: &Database, room: &str) -> Result<data::RoomId, InternalError<any
 			anyhow::anyhow!("Invalid room {:?}", room),
 			HttpStatus::NOT_FOUND,
 		)),
-		Err(err) => Err(InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR)),
+		Err(err) => Err(InternalError::new(
+			err.context("Getting room by name"),
+			HttpStatus::INTERNAL_SERVER_ERROR,
+		)),
 	}
 }
 
@@ -53,7 +57,12 @@ pub async fn post_message(
 		let room_id = get_room(&db, &room_name)?;
 		let message_id = db
 			.push_message(room_id, user.id(), &req.content, &now)
-			.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
+			.map_err(|err| {
+				InternalError::new(
+					err.context("Pushing message"),
+					HttpStatus::INTERNAL_SERVER_ERROR,
+				)
+			})?;
 		message_id.0
 	};
 	let message = data::Message {
@@ -63,6 +72,7 @@ pub async fn post_message(
 		timestamp: now,
 	};
 	let message_response = serde_json::to_string(&message)
+		.context("Converting message to JSON string")
 		.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
 	server
 		.send(crate::actors::server::NewMessage {
@@ -71,7 +81,8 @@ pub async fn post_message(
 		})
 		.await
 		.unwrap()
-		.map_err(InternalError::from)?;
+		.context("Sending new message event to server actor")
+		.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
 	Ok(HttpResponse::build(HttpStatus::OK).body(message_response))
 }
 
@@ -102,11 +113,12 @@ pub async fn oauth_login(
 ) -> actix_web::Result<HttpResponse> {
 	use actix_web::cookie::{self, Cookie};
 	let user_info = crate::oauth::resolve_oauth_token(&config.client_id, &data.token).await?;
-	let token = db
-		.lock()
-		.unwrap()
-		.refresh_user(&user_info)
-		.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
+	let token = db.lock().unwrap().refresh_user(&user_info).map_err(|err| {
+		InternalError::new(
+			err.context("Refreshing user token"),
+			HttpStatus::INTERNAL_SERVER_ERROR,
+		)
+	})?;
 	Ok(
 		HttpResponse::build(HttpStatus::NO_CONTENT)
 			.cookie(

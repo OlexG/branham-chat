@@ -108,6 +108,14 @@ pub struct NewMessage {
 pub enum NewMessageError {
 	UnknownRoom,
 }
+impl std::fmt::Display for NewMessageError {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		match self {
+			Self::UnknownRoom => write!(f, "Unknown room"),
+		}
+	}
+}
+impl std::error::Error for NewMessageError {}
 impl From<NewMessageError> for actix_web::error::InternalError<&'static str> {
 	fn from(err: NewMessageError) -> Self {
 		match err {

@@ -50,7 +50,11 @@ async fn main_() -> anyhow::Result<()> {
 					async {
 						let res = res.await?;
 						if let Some(error) = res.response().error() {
-							log::error!("Server error: {:?}", error);
+							log::error!(
+								"Server error (handled by {:?}): {:?}",
+								res.request().match_name(),
+								error
+							);
 						}
 						Ok(res)
 					}
