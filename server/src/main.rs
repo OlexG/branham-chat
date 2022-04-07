@@ -44,6 +44,17 @@ async fn main_() -> anyhow::Result<()> {
 						.index_file("index.html"),
 				)
 				.wrap(mid::Logger::default())
+				.wrap_fn(|req, srv| {
+					use actix_web::dev::Service as _;
+					let res = srv.call(req);
+					async {
+						let res = res.await?;
+						if let Some(error) = res.response().error() {
+							log::error!("Server error: {:?}", error);
+						}
+						Ok(res)
+					}
+				})
 		})
 	};
 	if let Some(num_workers) = config.num_workers {
