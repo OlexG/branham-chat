@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS messages (
 			.collect::<Result<_, rusqlite::Error>>()
 			.map_err(anyhow::Error::from)
 	}
-	pub fn get_room_by_name(&self, name: &str) -> Result<data::Room> {
+	pub fn get_room_by_name(&self, name: &str) -> Result<Option<data::Room>> {
 		self
 			.prepare("SELECT id FROM rooms WHERE name = ?")?
 			.query_row([name], |row| {
@@ -111,6 +111,7 @@ CREATE TABLE IF NOT EXISTS messages (
 					name: name.to_owned(),
 				})
 			})
+			.optional()
 			.map_err(anyhow::Error::from)
 	}
 
@@ -141,7 +142,9 @@ CREATE TABLE IF NOT EXISTS messages (
 					id: row.get("id")?,
 					content: row.get("content")?,
 					timestamp: row.get("timestamp")?,
-					user: self.get_user_by_id(data::UserId(row.get("user")?))?,
+					user: self
+						.get_user_by_id(data::UserId(row.get("user")?))?
+						.unwrap(), // foreign key
 				})
 			})?
 			.collect()
@@ -172,7 +175,7 @@ CREATE TABLE IF NOT EXISTS messages (
 			.exists([email, token])
 			.map_err(anyhow::Error::from)
 	}
-	pub fn get_user_by_id(&self, id: data::UserId) -> Result<data::User> {
+	pub fn get_user_by_id(&self, id: data::UserId) -> Result<Option<data::User>> {
 		self
 			.prepare("SELECT * FROM users WHERE id = ?")?
 			.query_row([id], |row| {
@@ -183,6 +186,7 @@ CREATE TABLE IF NOT EXISTS messages (
 					email: row.get("email")?,
 				})
 			})
+			.optional()
 			.map_err(anyhow::Error::from)
 	}
 	pub fn get_user_by_email(&self, email: &str) -> Result<Option<data::User>> {
