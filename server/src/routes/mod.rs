@@ -1,9 +1,9 @@
 use crate::actors::{Client, Server};
-use crate::annotated::AnnotatedError;
 use crate::config::Config;
 use crate::data::{Message, MessageRequest, User};
 use crate::db::Database;
 use actix::Addr;
+use actix_web::error::InternalError;
 use actix_web::http::StatusCode as HttpStatus;
 use actix_web::HttpResponse;
 use actix_web::{route, web, HttpRequest, Responder};
@@ -80,27 +80,22 @@ pub async fn oauth_login(
 	data: web::Json<LoginBody>,
 	config: web::Data<Config>,
 	db: web::Data<Mutex<Database>>,
-) -> impl Responder {
+) -> actix_web::Result<HttpResponse> {
 	use actix_web::cookie::{self, Cookie};
-	let user_info = match crate::oauth::resolve_oauth_token(&config.client_id, &data.token).await {
-		Ok(info) => info,
-		Err(annotated) => return annotated.into(),
-	};
-	let token = match db
+	let user_info = crate::oauth::resolve_oauth_token(&config.client_id, &data.token).await?;
+	let token = db
 		.lock()
 		.await
 		.refresh_user(&user_info)
-		.map_err(|err| AnnotatedError(HttpStatus::INTERNAL_SERVER_ERROR, err))
-	{
-		Ok(token) => token,
-		Err(annotated) => return annotated.into(),
-	};
-	HttpResponse::build(HttpStatus::NO_CONTENT)
-		.cookie(
-			Cookie::build("token", token.to_string())
-				.http_only(true)
-				.same_site(cookie::SameSite::Strict)
-				.finish(),
-		)
-		.finish()
+		.map_err(|err| InternalError::new(err, HttpStatus::INTERNAL_SERVER_ERROR))?;
+	Ok(
+		HttpResponse::build(HttpStatus::NO_CONTENT)
+			.cookie(
+				Cookie::build("token", token.to_string())
+					.http_only(true)
+					.same_site(cookie::SameSite::Strict)
+					.finish(),
+			)
+			.finish(),
+	)
 }

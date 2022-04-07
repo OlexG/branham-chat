@@ -1,4 +1,4 @@
-use crate::annotated::{AnnotatedError, StatusContextExt as _};
+use actix_web::error::InternalError;
 use actix_web::http::StatusCode as HttpStatus;
 use awc::Client;
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,7 @@ pub struct UserInfo {
 	pub profile_picture: String,
 }
 
-pub async fn resolve_oauth_token(audience: &str, token: &str) -> Result<UserInfo, AnnotatedError> {
+pub async fn resolve_oauth_token(audience: &str, token: &str) -> actix_web::Result<UserInfo> {
 	#[derive(Deserialize)]
 	struct Response {
 		#[serde(rename = "iss")]
@@ -29,45 +29,43 @@ pub async fn resolve_oauth_token(audience: &str, token: &str) -> Result<UserInfo
 		id_token: &'a str,
 	}
 
-	let response = Client::default()
+	let response: Response = Client::default()
 		.get("https://www.googleapis.com/oauth2/v3/tokeninfo")
 		.query(&QueryParams { id_token: token })
-		.status_context(
-			HttpStatus::INTERNAL_SERVER_ERROR,
-			"Serializing query parameters",
-		)?
+		.map_err(|err| {
+			InternalError::new(
+				format!("Serializing query parameters: {:?}", err),
+				HttpStatus::INTERNAL_SERVER_ERROR,
+			)
+		})?
 		.send()
 		.await
 		.map_err(|err| {
-			AnnotatedError(
+			InternalError::new(
+				format!("Sending request: {:?}", err),
 				HttpStatus::BAD_GATEWAY,
-				anyhow::anyhow!(err.to_string()).context("Sending request"),
 			)
-		})? // SendRequestError is not Send or Sync
-		.json::<Response>()
+		})?
+		.json()
 		.await
-		.status_context(HttpStatus::BAD_GATEWAY, "Extracting JSON from the response")?;
+		.map_err(|err| {
+			InternalError::new(
+				format!("Extracting JSON from the response: {:?}", err),
+				HttpStatus::BAD_GATEWAY,
+			)
+		})?;
 
 	if !matches!(
 		response.issuer.as_str(),
 		"accounts.google.com" | "https://accounts.google.com"
 	) {
-		return Err(AnnotatedError(
-			HttpStatus::FORBIDDEN,
-			anyhow::anyhow!("Invalid issuer"),
-		));
+		return Err(InternalError::new("Invalid issuer", HttpStatus::FORBIDDEN).into());
 	}
 	if response.audience != audience {
-		return Err(AnnotatedError(
-			HttpStatus::FORBIDDEN,
-			anyhow::anyhow!("Invalid audience"),
-		));
+		return Err(InternalError::new("Invalid audience", HttpStatus::FORBIDDEN).into());
 	}
 	if response.hosted_domain != "my.cuhsd.org" {
-		return Err(AnnotatedError(
-			HttpStatus::FORBIDDEN,
-			anyhow::anyhow!("Invalid hosted domain"),
-		));
+		return Err(InternalError::new("Invalid hosted domain", HttpStatus::FORBIDDEN).into());
 	}
 
 	Ok(response.info)

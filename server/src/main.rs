@@ -5,7 +5,6 @@ use std::sync::Arc;
 use tokio::sync::Mutex;
 
 mod actors;
-mod annotated;
 mod config;
 mod data;
 mod db;
