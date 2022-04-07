@@ -14,3 +14,12 @@ impl Display for Token {
 		write!(formatter, "{:x}", self.0)
 	}
 }
+
+use std::num::ParseIntError;
+use std::str::FromStr;
+impl FromStr for Token {
+	type Err = ParseIntError;
+	fn from_str(s: &str) -> Result<Self, ParseIntError> {
+		i64::from_str_radix(s, 16).map(Self)
+	}
+}
