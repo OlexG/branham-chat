@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS messages (
 	}
 	pub fn get_messages(&self, room_id: data::RoomId) -> Result<Vec<data::Message>> {
 		self
-			.prepare("SELECT content, timestamp, user FROM messages WHERE room = ?")?
+			.prepare("SELECT * FROM messages WHERE room = ?")?
 			.query_and_then([room_id], |row| {
 				Ok(data::Message {
 					id: row.get("id")?,
